@@ -32,6 +32,13 @@ public class FilmController {
         return filmService.findById(filmId);
     }
 
+    @Loggable(value = "Получить список популярных фильмов",level = LogLevel.INFO)
+    @GetMapping("/popular")
+    public ResponseEntity<Collection<Film>> getPopularFilms(
+            @RequestParam(name = "count",defaultValue = "10") int count) {
+        return ResponseEntity.ok(filmService.getPopularFilms(count));
+    }
+
     @Loggable(value = "Добавление фильма",level = LogLevel.INFO)
     @PostMapping
     public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
@@ -41,9 +48,25 @@ public class FilmController {
     }
 
     @Loggable(value = "Изменение данных",level = LogLevel.INFO)
-    @PutMapping("/{id}")
-    public Film putFilm(@PathVariable int id,@Valid @RequestBody Film film) {
-        return filmService.update(id,film);
+    @PutMapping()
+    public ResponseEntity<Film> putFilm(@Valid @RequestBody Film film) {
+        return ResponseEntity.ok(filmService.update(film.getId(), film));
     }
+
+    @Loggable(value = "Добавление лайка", level = LogLevel.INFO)
+    @PutMapping("/{id}/like/{userId}")
+    public ResponseEntity<Film> addLikeToFilm(@PathVariable("id") int filmId,
+                              @PathVariable("userId") int userId) {
+        return ResponseEntity.ok(filmService.addLikeToFilm(filmId,userId));
+    }
+
+    @Loggable(value = "Удаление лайка", level = LogLevel.INFO)
+    @DeleteMapping("/{id}/like/{userId}")
+    public ResponseEntity<Film> deleteLike(@PathVariable("id") int filmId,
+                           @PathVariable("userId") int userId) {
+        return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId,userId));
+    }
+
+
 
 }

@@ -3,18 +3,18 @@ package ru.yandex.practicum.filmorate.Repository;
 
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class InMemoryFilmRepository implements FilmRepository{
+public class InMemoryFilmRepository implements FilmRepository {
 
     private Map<Integer, Film> films = new HashMap<>();
+    private AtomicInteger atomicInteger = new AtomicInteger(0);
 
     @Override
-    public Collection<Film> findAll(){
+    public Collection<Film> findAll() {
         return films.values();
     }
 
@@ -25,7 +25,8 @@ public class InMemoryFilmRepository implements FilmRepository{
 
     @Override
     public Film save(Film film) {
-        film.setId(getNextId());
+        int id = atomicInteger.incrementAndGet();
+        film.setId(id);
         films.put(film.getId(),film);
         return film;
     }
@@ -39,19 +40,30 @@ public class InMemoryFilmRepository implements FilmRepository{
     }
 
     @Override
-    public Boolean exist(int id) {
-        return films.containsKey(id);
+    public Film addLikeToFilm(int filmId, int userId) {
+        Film film = films.get(filmId);
+        film.getLikes().add(userId);
+        films.put(filmId,film);
+        return film;
     }
 
+    @Override
+    public Film deleteLikeFromFilm(int filmId, int userId) {
+        Film film = films.get(filmId);
+        film.getLikes().remove(userId);
+        films.put(filmId,film);
+        return film;
+    }
 
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        Comparator<Film> byCountOfLikes = Comparator.comparingInt(film -> film.getLikes().size());
+        return films.values().stream().sorted(byCountOfLikes.reversed()).limit(count).toList();
+    }
 
-    private int getNextId() {
-        int currentMaxId = films.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @Override
+    public Boolean exist(int id) {
+        return films.containsKey(id);
     }
 
 }

@@ -13,6 +13,14 @@ public interface UserService {
 
     User update(int id,User user);
 
+    User addFriend(int firstUserId,int secondUserId);
+
+    User deleteFriend(int firstUserId,int secondUserId);
+
+    Collection<User> getUserFriends(int userId);
+
+    Collection<User> getCommonFriends(int firstUserId,int secondUserId);
+
     Boolean exist(int id);
 
 }

@@ -14,5 +14,11 @@ public interface FilmRepository {
 
     Film update(int id,Film film);
 
+    Film addLikeToFilm(int filmId,int userId);
+
+    Film deleteLikeFromFilm(int filmId, int userId);
+
+    Collection<Film> getPopularFilms(int count);
+
     Boolean exist(int id);
 }

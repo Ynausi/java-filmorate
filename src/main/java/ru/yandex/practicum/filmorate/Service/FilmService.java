@@ -14,5 +14,11 @@ public interface FilmService {
 
     Film findById(int id);
 
+    Film addLikeToFilm(int filmId,int userId);
+
+    Film deleteLikeFromFilm(int filmId, int userId);
+
+    Collection<Film> getPopularFilms(int count);
+
     Boolean exist(int id);
 }
