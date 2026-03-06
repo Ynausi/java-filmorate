@@ -6,11 +6,10 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.*;
 import ru.yandex.practicum.filmorate.model.Film;
-
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 
 class FilmValidationTest {
 
@@ -29,7 +28,7 @@ class FilmValidationTest {
                 "Matrix",
                 "Cool movie",
                 LocalDate.of(1999, 3, 31),
-                120
+                120,Set.of(1,2)
         );
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -43,7 +42,7 @@ class FilmValidationTest {
                 "   ",
                 "desc",
                 LocalDate.of(2000, 1, 1),
-                90
+                90,Set.of(1,2)
         );
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -64,7 +63,7 @@ class FilmValidationTest {
                 "Ok",
                 longDesc,
                 LocalDate.of(2000, 1, 1),
-                90
+                90,Set.of(1,2)
         );
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -84,7 +83,7 @@ class FilmValidationTest {
                 "Ok",
                 "desc",
                 LocalDate.of(2000, 1, 1),
-                -1
+                -1,Set.of(1,2)
         );
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -104,7 +103,7 @@ class FilmValidationTest {
                 "Ok",
                 "desc",
                 LocalDate.of(1800, 1, 1),
-                90
+                90,Set.of(1,2)
         );
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
