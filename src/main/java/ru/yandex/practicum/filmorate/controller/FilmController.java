@@ -1,81 +1,72 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.logging.LogLevel;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.Service.FilmService;
 import ru.yandex.practicum.filmorate.model.Film;
+import java.net.URI;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
-    private Map<Integer, Film> films = new HashMap<>();
+    private final FilmService filmService;
 
     @Loggable(value = "Получение всех фильмов",level = LogLevel.INFO)
     @GetMapping
-    public Collection<Film> getFilms() {
-        return films.values();
+    public ResponseEntity<Collection<Film>> getAll() {
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(filmService.findAll());
     }
 
 
     @Loggable(value = "Получение фильма",level = LogLevel.INFO)
     @GetMapping("/{id}")
-    public Film getFilm(@PathVariable("id") int filmId) {
-        if (films.containsKey(filmId)) {
-            return films.get(filmId);
-        } else {
-            throw new NotFoundException("Фильма с id: " + filmId + " нет");
-        }
+    public Film getById(@PathVariable("id") int filmId) {
+        return filmService.findById(filmId);
+    }
+
+    @Loggable(value = "Получить список популярных фильмов",level = LogLevel.INFO)
+    @GetMapping("/popular")
+    public ResponseEntity<Collection<Film>> getPopularFilms(
+            @RequestParam(name = "count",defaultValue = "10") int count) {
+        return ResponseEntity.ok(filmService.getPopularFilms(count));
     }
 
     @Loggable(value = "Добавление фильма",level = LogLevel.INFO)
     @PostMapping
-    public Film postFilm(@Valid @RequestBody Film film) {
-        film.setId(getNextId());
-        films.put(film.getId(), film);
-        return film;
+    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
+        Film created = filmService.save(film);
+        return ResponseEntity.created(URI.create("/films/" + created.getId()))
+                .body(created);
     }
 
     @Loggable(value = "Изменение данных",level = LogLevel.INFO)
-    @PutMapping
-    public Film putFilm(@Valid @RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
-            Film oldFilm = films.get(film.getId());
-            if (oldFilm.getDescription() != null && film.getDescription() != null) {
-                if (!oldFilm.getDescription().equals(film.getDescription())) {
-                    oldFilm.setDescription(film.getDescription());
-                }
-            } else if (oldFilm.getDescription() == null && film.getDescription() != null) {
-                oldFilm.setDescription(film.getDescription());
-            }
-            if (oldFilm.getDuration() != film.getDuration()) {
-                oldFilm.setDuration(film.getDuration());
-            }
-            if (oldFilm.getReleaseDate() != null && film.getReleaseDate() != null) {
-                if (!oldFilm.getReleaseDate().equals(film.getReleaseDate())) {
-                    oldFilm.setReleaseDate(film.getReleaseDate());
-                }
-            } else if (oldFilm.getReleaseDate() == null && film.getReleaseDate() != null) {
-                oldFilm.setReleaseDate(film.getReleaseDate());
-            }
-            if (!oldFilm.getName().equals(film.getName())) {
-                oldFilm.setName(film.getName());
-            }
-            return oldFilm;
-        }
-        throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
+    @PutMapping()
+    public ResponseEntity<Film> putFilm(@Valid @RequestBody Film film) {
+        return ResponseEntity.ok(filmService.update(film.getId(), film));
     }
 
-    private int getNextId() {
-        int currentMaxId = films.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @Loggable(value = "Добавление лайка", level = LogLevel.INFO)
+    @PutMapping("/{id}/like/{userId}")
+    public ResponseEntity<Film> addLikeToFilm(@PathVariable("id") int filmId,
+                              @PathVariable("userId") int userId) {
+        return ResponseEntity.ok(filmService.addLikeToFilm(filmId,userId));
     }
+
+    @Loggable(value = "Удаление лайка", level = LogLevel.INFO)
+    @DeleteMapping("/{id}/like/{userId}")
+    public ResponseEntity<Film> deleteLike(@PathVariable("id") int filmId,
+                           @PathVariable("userId") int userId) {
+        return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId,userId));
+    }
+
+
+
 }
