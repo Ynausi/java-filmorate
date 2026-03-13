@@ -23,4 +23,5 @@ public  class User {
     @PastOrPresent(message = "Неверно введена дата")
     private LocalDate birthday;
     private Set<Integer> friends = new HashSet<>();
+    private Set<FriendStatus> status;
 }
