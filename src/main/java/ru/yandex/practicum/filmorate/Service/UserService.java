@@ -21,6 +21,4 @@ public interface UserService {
 
     Collection<User> getCommonFriends(int firstUserId,int secondUserId);
 
-    Boolean exist(int id);
-
 }

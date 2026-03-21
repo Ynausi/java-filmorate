@@ -1,43 +1,110 @@
 package ru.yandex.practicum.filmorate.Service;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.Repository.FilmRepository;
-import ru.yandex.practicum.filmorate.Repository.UserRepository;
+import ru.yandex.practicum.filmorate.Repository.*;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.FilmRequest;
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
+    private final LikesRepository likesRepository;
+    private final FilmGenreRepository filmGenreRepository;
+    private final GenreRepository genreRepository;
+    private final FilmReqToFilmDto filmReqToFilmDto;
+    private final FilmDtoToData filmDtoToData;
+    private final FilmDtoToResp filmDtoToResp;
+    private final FilmToDto filmToDto;
+    private final RatingRepository ratingRepository;
 
     @Override
-    public Collection<Film> findAll() {
-        return filmRepository.findAll();
+    public Collection<FilmResponse> findAll() {
+        return filmRepository.findAll().stream()
+                .map(film -> {
+                    FilmDto dto = filmToDto.toData(film);
+                    dto.setMpa(
+                            dto.getRatingId() != null
+                                    ? ratingRepository.findById(dto.getRatingId()).orElse(null)
+                                    : null
+                    );
+                    dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
+                    return filmDtoToResp.toResp(dto);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Film save(Film film) {
-        return filmRepository.save(film);
-    }
-
-    @Override
-    public Film update(int id, Film film) {
-        if (!filmRepository.exist(id)) {
-           throw new NotFoundException("Фильма с id: " + id + "не существует");
+    public FilmResponse save(FilmRequest film) {
+        FilmDto dto = filmReqToFilmDto.toDto(film);
+        if (dto.getMpa() != null && dto.getRatingId() != null) {
+            dto.setRatingId(film.getMpa().getId());
+            dto.setMpa(ratingRepository.findById(dto.getMpa().getId()).orElseThrow(() ->
+                    new NotFoundException("No such Elem mpa")));
+        } else {
+            dto.setRatingId(null);
+            dto.setMpa(null);
         }
-        return filmRepository.update(id,film);
+        Film forSave = filmDtoToData.toData(dto);
+        Film saved = filmRepository.save(forSave);
+        dto.setId(saved.getId());
+        if (dto.getGenres() != null && !dto.getGenres().isEmpty()) {
+            for (Genre genre : dto.getGenres()) {
+                if (genreRepository.findById(genre.getId()).isEmpty()) {
+                    throw new NotFoundException("No such genre");
+                }
+                filmGenreRepository.addGenreToFilm(dto.getId(),genre.getId());
+            }
+            dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
+            System.out.println(dto.getGenres());
+        } else {
+            dto.setGenres(Collections.emptySet());
+        }
+        return filmDtoToResp.toResp(dto);
     }
 
     @Override
-    public Film findById(int id) {
-        return filmRepository.findById(id)
+    public FilmResponse update(FilmRequest film) {
+        if (film.getId() == null) {
+            throw new ValidationException("id must be for update");
+        }
+        if (filmRepository.findById(film.getId()).isEmpty()) {
+           throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
+        }
+        FilmDto dto = filmReqToFilmDto.toDto(film);
+        dto.setId(film.getId());
+        Film forUpdate = filmDtoToData.toData(dto);
+        Film update = filmRepository.update(forUpdate);
+        dto.setMpa(dto.getRatingId() != null
+                ? ratingRepository.findById(dto.getRatingId()).orElse(null)
+                : null);
+        return filmDtoToResp.toResp(dto);
+    }
+
+    @Override
+    public FilmResponse findById(int id) {
+        Film film = filmRepository.findById(id)
                 .orElseThrow(() ->
                         new NotFoundException("Фильма с id: " + id + "не существует"));
+        FilmDto dto = filmToDto.toData(film);
+        dto.setMpa(dto.getRatingId() != null
+                ? ratingRepository.findById(dto.getRatingId()).orElse(null)
+                : null);
+        dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
+        return filmDtoToResp.toResp(dto);
     }
 
     @Override
@@ -48,7 +115,7 @@ public class FilmServiceImpl implements FilmService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        filmRepository.addLikeToFilm(filmId,userId);
+        likesRepository.addLikeToFilm(userId,filmId);
         return film;
     }
 
@@ -60,17 +127,24 @@ public class FilmServiceImpl implements FilmService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        filmRepository.deleteLikeFromFilm(filmId,userId);
+        likesRepository.deleteLikeFromFilm(filmId,userId);
         return film;
     }
 
     @Override
-    public Collection<Film> getPopularFilms(int count) {
-        return filmRepository.getPopularFilms(count);
+    public Collection<FilmResponse> getPopularFilms(int count) {
+        return filmRepository.getPopularFilms(count)
+                .stream()
+                .map(film -> {
+                    FilmDto dto = filmToDto.toData(film);
+                    dto.setMpa(
+                            dto.getRatingId() != null
+                                    ? ratingRepository.findById(dto.getRatingId()).orElse(null)
+                                    : null
+                    );
+                    return filmDtoToResp.toResp(dto);
+                })
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public Boolean exist(int id) {
-        return filmRepository.exist(id);
-    }
 }

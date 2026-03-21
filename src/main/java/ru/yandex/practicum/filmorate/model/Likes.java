@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Genre {
-    private Integer id;
-    private GenreEnum name;
+public class Likes {
+    private int filmId;
+    private int userId;
 }
