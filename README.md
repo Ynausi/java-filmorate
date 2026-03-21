@@ -1,12 +1,5 @@
 # java-filmorate
-
 Template repository for Filmorate project.
+## Схема базы данных
 
-
-
-\## Схема базы данных
-
-
-
-!\[Схема БД](database-schema.png)
-
+![Схема БД](DataBase-scheme.png)
