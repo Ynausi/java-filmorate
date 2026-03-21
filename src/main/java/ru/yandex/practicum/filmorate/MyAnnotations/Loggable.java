@@ -10,6 +10,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Loggable {
     String value();
-    LogLevel level();
-    enum Level { DEBUG,INFO,WARN,ERROR }
+    LogLevel level() default LogLevel.INFO;
 }

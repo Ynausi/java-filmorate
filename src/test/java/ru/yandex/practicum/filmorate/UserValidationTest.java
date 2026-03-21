@@ -10,7 +10,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
+
 
 class UserValidationTest {
 
@@ -29,7 +30,7 @@ class UserValidationTest {
                 "user@mail.com",
                 "login",
                 "Name",
-                LocalDate.of(2000, 1, 1)
+                LocalDate.of(2000, 1, 1),Set.of(1,2)
         );
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -43,7 +44,7 @@ class UserValidationTest {
                 "not-an-email",
                 "login",
                 "Name",
-                LocalDate.of(2000, 1, 1)
+                LocalDate.of(2000, 1, 1),Set.of(1,2)
         );
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -63,7 +64,7 @@ class UserValidationTest {
                 "   ",
                 "login",
                 "Name",
-                LocalDate.of(2000, 1, 1)
+                LocalDate.of(2000, 1, 1),Set.of(1,2)
         );
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -82,7 +83,7 @@ class UserValidationTest {
                 "user@mail.com",
                 "lo gin",
                 "Name",
-                LocalDate.of(2000, 1, 1)
+                LocalDate.of(2000, 1, 1),Set.of(1,2)
         );
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -102,7 +103,7 @@ class UserValidationTest {
                 "user@mail.com",
                 "   ",
                 "Name",
-                LocalDate.of(2000, 1, 1)
+                LocalDate.of(2000, 1, 1),Set.of(1,2)
         );
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
@@ -121,7 +122,7 @@ class UserValidationTest {
                 "user@mail.com",
                 "login",
                 "Name",
-                LocalDate.now().plusDays(1)
+                LocalDate.now().plusDays(1),Set.of(1,2)
         );
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
