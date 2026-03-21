@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.Service.FilmService;
+import ru.yandex.practicum.filmorate.dto.FilmRequest;
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.net.URI;
 import java.util.Collection;
@@ -20,7 +22,7 @@ public class FilmController {
 
     @Loggable(value = "Получение всех фильмов",level = LogLevel.INFO)
     @GetMapping
-    public ResponseEntity<Collection<Film>> getAll() {
+    public ResponseEntity<Collection<?>> getAll() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(filmService.findAll());
     }
@@ -28,29 +30,29 @@ public class FilmController {
 
     @Loggable(value = "Получение фильма",level = LogLevel.INFO)
     @GetMapping("/{id}")
-    public Film getById(@PathVariable("id") int filmId) {
+    public FilmResponse getById(@PathVariable("id") int filmId) {
         return filmService.findById(filmId);
     }
 
     @Loggable(value = "Получить список популярных фильмов",level = LogLevel.INFO)
     @GetMapping("/popular")
-    public ResponseEntity<Collection<Film>> getPopularFilms(
+    public ResponseEntity<Collection<FilmResponse>> getPopularFilms(
             @RequestParam(name = "count",defaultValue = "10") int count) {
         return ResponseEntity.ok(filmService.getPopularFilms(count));
     }
 
     @Loggable(value = "Добавление фильма",level = LogLevel.INFO)
     @PostMapping
-    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
-        Film created = filmService.save(film);
+    public ResponseEntity<FilmResponse> createFilm(@Valid @RequestBody FilmRequest film) {
+        FilmResponse created = filmService.save(film);
         return ResponseEntity.created(URI.create("/films/" + created.getId()))
                 .body(created);
     }
 
     @Loggable(value = "Изменение данных",level = LogLevel.INFO)
     @PutMapping()
-    public ResponseEntity<Film> putFilm(@Valid @RequestBody Film film) {
-        return ResponseEntity.ok(filmService.update(film.getId(), film));
+    public ResponseEntity<FilmResponse> putFilm(@Valid @RequestBody FilmRequest film) {
+        return ResponseEntity.ok(filmService.update(film));
     }
 
     @Loggable(value = "Добавление лайка", level = LogLevel.INFO)

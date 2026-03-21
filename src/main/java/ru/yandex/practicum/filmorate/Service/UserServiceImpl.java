@@ -2,16 +2,18 @@ package ru.yandex.practicum.filmorate.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.Repository.FriendshipRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.FriendStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
 
     public Collection<User> findAll() {
         return userRepository.findAll();
@@ -34,10 +36,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(int id, User user) {
-        if (!userRepository.exist(id)) {
+        if (userRepository.findById(id).isEmpty()) {
             throw new NotFoundException("Пользователь с id:" + id + "не найден");
         }
-        return userRepository.update(id,user);
+        return userRepository.update(user);
     }
 
     @Override
@@ -48,7 +50,8 @@ public class UserServiceImpl implements UserService {
         User secondUser = userRepository.findById(secondUserId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
-        userRepository.addFriend(firstUserId,secondUserId);
+        FriendStatus friendStatus = FriendStatus.CONFIRMED;
+        friendshipRepository.addFriendShip(firstUserId,secondUserId,friendStatus);
         return firstUser;
     }
 
@@ -60,8 +63,7 @@ public class UserServiceImpl implements UserService {
         User secondUser = userRepository.findById(secondUserId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
-        Set<Integer> firstUserFriends = firstUser.getFriends();
-        userRepository.deleteFriend(firstUserId,secondUserId);
+        friendshipRepository.deleteFriendShip(firstUserId,secondUserId);
         return firstUser;
     }
 
@@ -83,11 +85,5 @@ public class UserServiceImpl implements UserService {
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
         return userRepository.getCommonFriends(firstUserId,secondUserId);
     }
-
-    @Override
-    public Boolean exist(int id) {
-        return userRepository.exist(id);
-    }
-
 
 }

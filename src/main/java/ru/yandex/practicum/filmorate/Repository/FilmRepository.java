@@ -12,13 +12,8 @@ public interface FilmRepository {
 
     Film save(Film film);
 
-    Film update(int id,Film film);
-
-    Film addLikeToFilm(int filmId,int userId);
-
-    Film deleteLikeFromFilm(int filmId, int userId);
+    Film update(Film film);
 
     Collection<Film> getPopularFilms(int count);
 
-    Boolean exist(int id);
 }

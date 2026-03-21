@@ -1,0 +1,57 @@
+CREATE TABLE IF NOT EXISTS Rating(
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(50) UNIQUE NOT NULL
+);
+MERGE INTO Rating(name) KEY(name) VALUES ('G');
+MERGE INTO Rating(name) KEY(name) VALUES ('PG');
+MERGE INTO Rating(name) KEY(name) VALUES ('PG-13');
+MERGE INTO Rating(name) KEY(name) VALUES ('R');
+MERGE INTO Rating(name) KEY(name) VALUES ('NC-17');
+CREATE TABLE IF NOT EXISTS Films (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ description VARCHAR(200),
+ releaseDate DATE,
+ ratingId INT,
+ duration INT,
+ FOREIGN KEY (ratingId) REFERENCES Rating(id)
+);
+CREATE TABLE IF NOT EXISTS Genre(
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(50) UNIQUE NOT NULL
+);
+MERGE INTO Genre(name) KEY(name) VALUES ('COMEDY');
+MERGE INTO Genre(name) KEY(name) VALUES ('DRAMA');
+MERGE INTO Genre(name) KEY(name) VALUES ('CARTOON');
+MERGE INTO Genre(name) KEY(name) VALUES ('THRILLER');
+MERGE INTO Genre(name) KEY(name) VALUES ('DOCUMENTARY');
+MERGE INTO Genre(name) KEY(name) VALUES ('ACTION');
+CREATE TABLE IF NOT EXISTS Film_Genre(
+ filmId INT NOT NULL,
+ genreId INT NOT NULL,
+ PRIMARY KEY(filmId,genreId),
+ FOREIGN KEY (filmId) REFERENCES Films(id),
+ FOREIGN KEY (genreId) REFERENCES Genre(id)
+);
+CREATE TABLE IF NOT EXISTS Users(
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ email VARCHAR(100) NOT NULL,
+ login VARCHAR(50) NOT NULL,
+ name VARCHAR(50) NOT NULL,
+ birthday DATE
+);
+CREATE TABLE IF NOT EXISTS Likes(
+ userId INT,
+ filmId INT,
+ PRIMARY KEY(filmId,userId),
+ FOREIGN KEY (filmId) REFERENCES Films(id),
+ FOREIGN KEY (userId) REFERENCES Users(id)
+);
+CREATE TABLE IF NOT EXISTS Friendship(
+ userId INT NOT NULL,
+ friendId INT NOT NULL,
+ status VARCHAR(30),
+ PRIMARY KEY(userId,friendId),
+ FOREIGN KEY (userId) REFERENCES Users(id),
+ FOREIGN KEY (friendId) REFERENCES Users(id)
+);

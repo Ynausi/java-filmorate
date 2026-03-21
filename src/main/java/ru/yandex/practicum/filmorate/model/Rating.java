@@ -1,19 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
-public enum Rating {
-    G("G"),
-    PG("PG"),
-    PG13("PG-13"),
-    R("R"),
-    NC17("NC-17");
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    private String title;
-
-    Rating(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Rating {
+    private Integer id;
+    private RatingEnum name;
 }
