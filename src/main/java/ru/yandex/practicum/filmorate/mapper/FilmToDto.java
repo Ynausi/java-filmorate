@@ -17,6 +17,7 @@ public class FilmToDto {
         dto.setName(film.getName());
         dto.setDescription(film.getDescription());
         dto.setDuration(film.getDuration());
+        dto.setDirectorId(film.getDirectorId());
         dto.setReleaseDate(film.getReleaseDate());
         dto.setGenres(genreRepository.findAllGenresForFilm(film.getId()));
         dto.setRatingId(film.getRatingId());

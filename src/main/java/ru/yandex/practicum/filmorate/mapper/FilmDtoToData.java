@@ -15,6 +15,7 @@ public class FilmDtoToData {
         film.setDescription(dto.getDescription());
         film.setReleaseDate(dto.getReleaseDate());
         film.setDuration(dto.getDuration());
+        film.setDirectorId(dto.getDirectorId());
         film.setRatingId(dto.getRatingId());
         return film;
     }

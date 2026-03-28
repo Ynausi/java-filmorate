@@ -10,10 +10,10 @@ import java.util.*;
 public class InMemoryFilmRepository extends BaseRepository<Film> implements FilmRepository {
     private static final String FIND_ALL_FILMS = "SELECT * FROM Films";
     private static final String FIND_BY_ID = "SELECT * FROM Films WHERE id = ? ";
-    private static final String PUT_FILM = "INSERT INTO Films(name,description,releaseDate,ratingId,duration) " +
-                                        "VALUES(?,?,?,?,?)";
+    private static final String PUT_FILM = "INSERT INTO Films(name,description,releaseDate,ratingId,duration,directorId) " +
+                                        "VALUES(?,?,?,?,?,?)";
     private static final String UPDATE_FILM = "UPDATE Films SET " +
-            "name = ?, description = ?,releaseDate = ?,ratingId = ?,duration = ? " +
+            "name = ?, description = ?,releaseDate = ?,ratingId = ?,duration = ?,directorId = ? " +
             "WHERE id = ?";
 
     public InMemoryFilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
@@ -37,7 +37,9 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getRatingId(),
-                film.getDuration());
+                film.getDuration(),
+                film.getDirectorId()
+        );
         film.setId(id);
         return film;
     }
@@ -50,6 +52,7 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
                 film.getReleaseDate(),
                 film.getRatingId(),
                 film.getDuration(),
+                film.getDirectorId(),
                 film.getId()
         );
         return film;
@@ -68,6 +71,26 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
                 "ORDER BY likes_count DESC " +
                 "LIMIT " + count;
         return findMany(GET_POPULAR_FILMS);
+    }
+
+    @Override
+    public Collection<Film> getDirectorFilmsByLikes(int directorId) {
+        final String GET_DIRECTORS_FILMS_BY_LIKES =
+                        "SELECT *,COALESCE(l.likes_count,0) AS likes_count " +
+                        "FROM Films " +
+                        "LEFT JOIN(" +
+                                "SELECT filmId, COUNT(*) as likes_count " +
+                                "FROM Likes " +
+                                "GROUP BY filmId " +
+                                ") l ON f.id = l.filmId " +
+                        "WHERE directorId = ? " +
+                        "ORDER BY likes_count DESC";
+        return findMany(GET_DIRECTORS_FILMS_BY_LIKES);
+    }
+
+    @Override
+    public Collection<Film> getDirectorFilmsByYear(int directorId) {
+        return List.of();
     }
 
 }
