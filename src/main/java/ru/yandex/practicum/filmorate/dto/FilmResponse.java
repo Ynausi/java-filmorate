@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dto;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ public class FilmResponse {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
+    private Director director;
     private Rating mpa;
     private Set<Genre> genres = new HashSet<>();
 }

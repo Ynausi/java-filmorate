@@ -17,6 +17,13 @@ public class FilmReqToFilmDto {
         dto.setDescription(filmRequest.getDescription());
         dto.setReleaseDate(filmRequest.getReleaseDate());
         dto.setDuration(filmRequest.getDuration());
+        if (filmRequest.getDirector() != null && filmRequest.getDirector().getId() != null) {
+            dto.setDirectorId(filmRequest.getDirector().getId());
+            dto.setDirector(filmRequest.getDirector());
+        } else {
+            dto.setDirector(null);
+            dto.setDirector(null);
+        }
         if (filmRequest.getMpa() != null && filmRequest.getMpa().getId() != null) {
             dto.setRatingId(filmRequest.getMpa().getId());
             dto.setMpa(filmRequest.getMpa());

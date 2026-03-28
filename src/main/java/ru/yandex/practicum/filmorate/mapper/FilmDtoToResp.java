@@ -14,6 +14,7 @@ public class FilmDtoToResp {
         filmResponse.setDescription(dto.getDescription());
         filmResponse.setReleaseDate(dto.getReleaseDate());
         filmResponse.setDuration(dto.getDuration());
+        filmResponse.setDirector(dto.getDirector());
         if (dto.getGenres() == null || dto.getGenres().isEmpty()) {
             filmResponse.setGenres(Collections.emptySet());
         } else {

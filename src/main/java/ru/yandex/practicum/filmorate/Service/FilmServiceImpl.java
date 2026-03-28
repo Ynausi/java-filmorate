@@ -30,20 +30,12 @@ public class FilmServiceImpl implements FilmService {
     private final FilmDtoToResp filmDtoToResp;
     private final FilmToDto filmToDto;
     private final RatingRepository ratingRepository;
+    private final DirectorRepository directorRepository;
 
     @Override
     public Collection<FilmResponse> findAll() {
         return filmRepository.findAll().stream()
-                .map(film -> {
-                    FilmDto dto = filmToDto.toData(film);
-                    dto.setMpa(
-                            dto.getRatingId() != null
-                                    ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                                    : null
-                    );
-                    dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-                    return filmDtoToResp.toResp(dto);
-                })
+                .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
     }
 
@@ -57,6 +49,14 @@ public class FilmServiceImpl implements FilmService {
         } else {
             dto.setRatingId(null);
             dto.setMpa(null);
+        }
+        if(dto.getDirector() != null && dto.getDirectorId() != null) {
+            dto.setDirectorId(film.getDirector().getId());
+            dto.setDirector(directorRepository.findById(dto.getDirector().getId()).orElseThrow(() ->
+                    new NotFoundException("No such Elem Director")));
+        } else {
+            dto.setDirectorId(null);
+            dto.setDirector(null);
         }
         Film forSave = filmDtoToData.toData(dto);
         Film saved = filmRepository.save(forSave);
@@ -91,6 +91,9 @@ public class FilmServiceImpl implements FilmService {
         dto.setMpa(dto.getRatingId() != null
                 ? ratingRepository.findById(dto.getRatingId()).orElse(null)
                 : null);
+        dto.setDirector(dto.getDirectorId() != null
+                ? directorRepository.findById(dto.getDirectorId()).orElse(null)
+                : null);
         return filmDtoToResp.toResp(dto);
     }
 
@@ -99,12 +102,7 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmRepository.findById(id)
                 .orElseThrow(() ->
                         new NotFoundException("Фильма с id: " + id + "не существует"));
-        FilmDto dto = filmToDto.toData(film);
-        dto.setMpa(dto.getRatingId() != null
-                ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                : null);
-        dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-        return filmDtoToResp.toResp(dto);
+        return buildFilmResponse(film);
     }
 
     @Override
@@ -135,16 +133,32 @@ public class FilmServiceImpl implements FilmService {
     public Collection<FilmResponse> getPopularFilms(int count) {
         return filmRepository.getPopularFilms(count)
                 .stream()
-                .map(film -> {
-                    FilmDto dto = filmToDto.toData(film);
-                    dto.setMpa(
-                            dto.getRatingId() != null
-                                    ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                                    : null
-                    );
-                    return filmDtoToResp.toResp(dto);
-                })
+                .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
+        return filmRepository.getDirectorFilmsByLikes(directorId).stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    private FilmResponse buildFilmResponse(Film film) {
+        FilmDto dto = filmToDto.toData(film);
+        dto.setMpa(
+                dto.getRatingId() != null
+                        ? ratingRepository.findById(dto.getRatingId()).orElse(null)
+                        : null
+        );
+        dto.setDirector(
+                dto.getDirectorId() != null
+                        ? directorRepository.findById(dto.getDirectorId()).orElse(null)
+                        : null
+        );
+        if (dto.getId() != null) {
+            dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
+        }
+        return filmDtoToResp.toResp(dto);
+    }
 }
