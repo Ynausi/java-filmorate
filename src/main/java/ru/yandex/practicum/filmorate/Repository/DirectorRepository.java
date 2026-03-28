@@ -4,10 +4,13 @@ import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public interface DirectorRepository {
 
-    Collection<Director> findAll();
+    Set<Director> findAll();
+
+    Set<Director> findAllDirectorsForFilm(int filmId);
 
     Optional<Director> findById(int directorId);
 

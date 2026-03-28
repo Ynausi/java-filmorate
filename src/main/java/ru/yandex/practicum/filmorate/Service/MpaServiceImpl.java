@@ -16,8 +16,7 @@ public class MpaServiceImpl implements MpaService {
 
     @Override
     public Collection<Rating> findAllRatings() {
-        return ratingRepository.findAllRating().stream()
-                .collect(Collectors.toSet());
+        return ratingRepository.findAllRating();
     }
 
     @Override
