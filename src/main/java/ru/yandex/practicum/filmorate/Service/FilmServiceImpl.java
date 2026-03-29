@@ -8,10 +8,14 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.*;
+import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
+import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
+import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
+import ru.yandex.practicum.filmorate.mapper.FilmToDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -50,7 +54,7 @@ public class FilmServiceImpl implements FilmService {
             dto.setRatingId(null);
             dto.setMpa(null);
         }
-        if(dto.getDirector() != null && dto.getDirectorId() != null) {
+        if (dto.getDirector() != null && dto.getDirectorId() != null) {
             dto.setDirectorId(film.getDirector().getId());
             dto.setDirector(directorRepository.findById(dto.getDirector().getId()).orElseThrow(() ->
                     new NotFoundException("No such Elem Director")));
@@ -66,7 +70,7 @@ public class FilmServiceImpl implements FilmService {
                 if (genreRepository.findById(genre.getId()).isEmpty()) {
                     throw new NotFoundException("No such genre");
                 }
-                filmGenreRepository.addGenreToFilm(dto.getId(),genre.getId());
+                filmGenreRepository.addGenreToFilm(dto.getId(), genre.getId());
             }
             dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
             System.out.println(dto.getGenres());
@@ -82,7 +86,7 @@ public class FilmServiceImpl implements FilmService {
             throw new ValidationException("id must be for update");
         }
         if (filmRepository.findById(film.getId()).isEmpty()) {
-           throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
+            throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
@@ -113,7 +117,7 @@ public class FilmServiceImpl implements FilmService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        likesRepository.addLikeToFilm(userId,filmId);
+        likesRepository.addLikeToFilm(userId, filmId);
         return film;
     }
 
@@ -125,7 +129,7 @@ public class FilmServiceImpl implements FilmService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        likesRepository.deleteLikeFromFilm(filmId,userId);
+        likesRepository.deleteLikeFromFilm(filmId, userId);
         return film;
     }
 
