@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
+
 import java.util.Optional;
 
 
@@ -18,12 +19,12 @@ public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implement
 
     @Override
     public void addGenreToFilm(int filmId, int genreId) {
-        update(ADD_GENRE_TO_FILM,filmId,genreId);
+        update(ADD_GENRE_TO_FILM, filmId, genreId);
     }
 
     @Override
     public Optional<FilmGenre> findById(int id) {
-        return findOne(FIND_BY_ID,id);
+        return findOne(FIND_BY_ID, id);
     }
 
 }

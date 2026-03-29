@@ -16,5 +16,4 @@ public interface DirectorService {
     Director update(Director director);
 
     boolean delete(int directorId);
-
 }

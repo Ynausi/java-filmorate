@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.Repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -19,4 +20,6 @@ public interface FilmRepository {
     Collection<Film> getDirectorFilmsByLikes(int directorId);
 
     Collection<Film> getDirectorFilmsByYear(int directorId);
+
+    boolean delete(int filmId);
 }

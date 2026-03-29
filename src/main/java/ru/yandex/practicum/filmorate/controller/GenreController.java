@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.Service.GenreService;
 import ru.yandex.practicum.filmorate.model.Genre;
+
 import java.util.Collection;
 
 @RestController
@@ -16,7 +17,7 @@ import java.util.Collection;
 public class GenreController {
     private final GenreService genreService;
 
-    @Loggable(value = "Получение фильмов c жанрами",level = LogLevel.INFO)
+    @Loggable(value = "Получение фильмов c жанрами", level = LogLevel.INFO)
     @GetMapping
     public ResponseEntity<Collection<?>> getAll() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
@@ -24,7 +25,7 @@ public class GenreController {
     }
 
 
-    @Loggable(value = "Получение жанра по id",level = LogLevel.INFO)
+    @Loggable(value = "Получение жанра по id", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public Genre getById(@PathVariable("id") int genreId) {
         return genreService.findById(genreId);

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.mapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
+
 import java.util.Collections;
 
 @Component

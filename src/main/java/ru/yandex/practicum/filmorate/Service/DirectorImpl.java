@@ -12,8 +12,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class DirectorImpl implements DirectorService{
+public class DirectorImpl implements DirectorService {
     private final DirectorRepository directorRepository;
+
     @Override
     public Collection<Director> findAll() {
         return directorRepository.findAll();

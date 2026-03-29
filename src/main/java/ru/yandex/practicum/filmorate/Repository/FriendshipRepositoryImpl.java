@@ -9,9 +9,9 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 @Repository
 public class FriendshipRepositoryImpl extends BaseRepository<Friendship> implements FriendshipRepository {
     private static final String PUT_TO_TAB = "INSERT INTO Friendship (userId,friendId,status) " +
-                                            "VALUES(?,?,?)";
+            "VALUES(?,?,?)";
     private static final String DELETE_FROM_TAB = "DELETE FROM Friendship " +
-                                                "WHERE userId = ? AND friendId = ?";
+            "WHERE userId = ? AND friendId = ?";
 
     public FriendshipRepositoryImpl(JdbcTemplate jdbc, RowMapper<Friendship> mapper) {
         super(jdbc, mapper);
@@ -24,7 +24,7 @@ public class FriendshipRepositoryImpl extends BaseRepository<Friendship> impleme
                 friendStatus.name());
     }
 
-    public void deleteFriendShip(int userId,int friendId) {
+    public void deleteFriendShip(int userId, int friendId) {
         deleteFromTableWithDiffKey(DELETE_FROM_TAB,
                 userId,
                 friendId);

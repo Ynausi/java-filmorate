@@ -4,17 +4,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
+
 import java.util.Collection;
 import java.util.Optional;
 
 @Repository
-public class DirectorRepositoryImpl extends BaseRepository implements DirectorRepository{
+public class DirectorRepositoryImpl extends BaseRepository implements DirectorRepository {
     private static final String FIND_ALL_DIRECTORS = "SELECT * FROM Directors";
     private static final String FIND_BY_ID = "SELECT * FROM Directors WHERE id = ?";
     private static final String ADD_DIRECTOR = "INSERT INTO Directors(name) " +
-                                                "VALUES(?)";
+            "VALUES(?)";
     private static final String UPDATE_DIRECTOR = "UPDATE Directors SET " +
-                                                    "name = ? WHERE id = ?";
+            "name = ? WHERE id = ?";
     private static final String DELETE_DIRECTOR = "DELETE * FROM Directors WHERE id = ?";
 
     public DirectorRepositoryImpl(JdbcTemplate jdbc, RowMapper<Director> mapper) {
@@ -29,7 +30,7 @@ public class DirectorRepositoryImpl extends BaseRepository implements DirectorRe
     @Override
     public Optional<Director> findById(int directorId) {
         return findOne(FIND_BY_ID
-                ,directorId
+                , directorId
         );
     }
 

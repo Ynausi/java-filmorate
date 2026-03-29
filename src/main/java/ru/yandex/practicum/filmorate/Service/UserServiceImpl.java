@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.Repository.FriendshipRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.FriendStatus;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.Collection;
 
 @Service
@@ -51,7 +53,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
         FriendStatus friendStatus = FriendStatus.CONFIRMED;
-        friendshipRepository.addFriendShip(firstUserId,secondUserId,friendStatus);
+        friendshipRepository.addFriendShip(firstUserId, secondUserId, friendStatus);
         return firstUser;
     }
 
@@ -63,7 +65,7 @@ public class UserServiceImpl implements UserService {
         User secondUser = userRepository.findById(secondUserId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
-        friendshipRepository.deleteFriendShip(firstUserId,secondUserId);
+        friendshipRepository.deleteFriendShip(firstUserId, secondUserId);
         return firstUser;
     }
 
@@ -76,14 +78,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<User> getCommonFriends(int firstUserId,int secondUserId) {
+    public Collection<User> getCommonFriends(int firstUserId, int secondUserId) {
         User firstUser = userRepository.findById(firstUserId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + firstUserId + "не найден"));
         User secondUser = userRepository.findById(secondUserId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
-        return userRepository.getCommonFriends(firstUserId,secondUserId);
+        return userRepository.getCommonFriends(firstUserId, secondUserId);
     }
 
+    @Override
+    public void delete(int userId) {
+        if (userRepository.findById(userId).isEmpty()) {
+            throw new NotFoundException("Пользователя с id: " + userId + " не существует");
+        }
+        boolean deleted = userRepository.delete(userId);
+        if (!deleted) {
+            throw new InternalServerException("Не удалось удалить пользователя с id: " + userId);
+        }
+    }
 }

@@ -19,14 +19,14 @@ import java.util.Collection;
 public class DirectorController {
     private final DirectorService directorService;
 
-    @Loggable(value = "Получение всех режиссёров",level = LogLevel.INFO)
+    @Loggable(value = "Получение всех режиссёров", level = LogLevel.INFO)
     @GetMapping
     public ResponseEntity<Collection<Director>> getAll() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(directorService.findAll());
     }
 
-    @Loggable(value = "Получение режиссёра по id",level = LogLevel.INFO)
+    @Loggable(value = "Получение режиссёра по id", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public ResponseEntity<Director> getById(@PathVariable("id") int id) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
@@ -41,14 +41,14 @@ public class DirectorController {
                 .body(created);
     }
 
-    @Loggable(value = "Изменение данных режиссёра",level = LogLevel.INFO)
+    @Loggable(value = "Изменение данных режиссёра", level = LogLevel.INFO)
     @PutMapping
     public ResponseEntity<Director> updateDirector(@RequestBody Director director) {
-         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                 .body(directorService.update(director));
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(directorService.update(director));
     }
 
-    @Loggable(value = "Удаление режиссёра",  level = LogLevel.INFO)
+    @Loggable(value = "Удаление режиссёра", level = LogLevel.INFO)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDirector(@PathVariable("id") int id) {
         return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM)
