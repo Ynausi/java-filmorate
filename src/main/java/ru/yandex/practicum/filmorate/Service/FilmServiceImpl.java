@@ -161,4 +161,17 @@ public class FilmServiceImpl implements FilmService {
         }
         return filmDtoToResp.toResp(dto);
     }
+
+    @Override
+    public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+        userRepository.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + friendId + " не существует."));
+
+        return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
 }
