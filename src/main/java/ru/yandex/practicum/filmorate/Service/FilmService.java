@@ -25,7 +25,7 @@ public interface FilmService {
 
     Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy);
 
-    @org.jetbrains.annotations.NotNull List<FilmResponse> delete(int filmId);
+    void delete(int filmId);
 
     Collection<FilmResponse> getCommonFilms(int userId, int friendId);
 }

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.Repository.FriendshipRepository;
+import ru.yandex.practicum.filmorate.Repository.LikesRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -16,6 +17,7 @@ import java.util.Collection;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final LikesRepository likesRepository;
 
     public Collection<User> findAll() {
         return userRepository.findAll();
@@ -93,6 +95,11 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("Пользователя с id: " + userId + " не существует");
         }
+
+        friendshipRepository.deleteAllFriendshipsForUser(userId);
+
+        likesRepository.deleteAllLikesForUser(userId);
+
         boolean deleted = userRepository.delete(userId);
         if (!deleted) {
             throw new InternalServerException("Не удалось удалить пользователя с id: " + userId);

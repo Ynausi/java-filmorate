@@ -12,6 +12,8 @@ public class FriendshipRepositoryImpl extends BaseRepository<Friendship> impleme
             "VALUES(?,?,?)";
     private static final String DELETE_FROM_TAB = "DELETE FROM Friendship " +
             "WHERE userId = ? AND friendId = ?";
+    private static final String DELETE_ALL_FRIENDSHIPS_FOR_USER =
+            "DELETE FROM Friendship WHERE userId = ? OR friendId = ?";
 
     public FriendshipRepositoryImpl(JdbcTemplate jdbc, RowMapper<Friendship> mapper) {
         super(jdbc, mapper);
@@ -28,5 +30,10 @@ public class FriendshipRepositoryImpl extends BaseRepository<Friendship> impleme
         deleteFromTableWithDiffKey(DELETE_FROM_TAB,
                 userId,
                 friendId);
+    }
+
+    @Override
+    public void deleteAllFriendshipsForUser(int userId) {
+        jdbc.update(DELETE_ALL_FRIENDSHIPS_FOR_USER, userId, userId);
     }
 }
