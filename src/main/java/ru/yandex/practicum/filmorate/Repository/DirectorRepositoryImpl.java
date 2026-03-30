@@ -29,9 +29,7 @@ public class DirectorRepositoryImpl extends BaseRepository implements DirectorRe
 
     @Override
     public Optional<Director> findById(int directorId) {
-        return findOne(FIND_BY_ID
-                , directorId
-        );
+        return findOne(FIND_BY_ID, directorId);
     }
 
     @Override
