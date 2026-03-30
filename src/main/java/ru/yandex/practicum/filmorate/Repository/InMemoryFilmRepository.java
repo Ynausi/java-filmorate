@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -103,7 +102,7 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
     public boolean delete(int filmId) {
         return delete(DELETE_FILM, filmId);
     }
-}
+
     public Collection<Film> getCommonFilms(int userId, int friendId) {
         final String GET_COMMON_FILMS =
                 "SELECT f.*, COALESCE(l.likes_count, 0) AS likes_count " +

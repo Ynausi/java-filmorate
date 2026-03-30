@@ -83,6 +83,8 @@ public class FilmController {
     public ResponseEntity<Void> deleteFilm(@PathVariable("filmId") int filmId) {
         filmService.delete(filmId);
         return ResponseEntity.noContent().build(); // HTTP 204 No Content
+    }
+
     @Loggable(value = "Получить список общих фильмов с сортировкой по популярности", level = LogLevel.INFO)
     @GetMapping("/common")
     public ResponseEntity<Collection<FilmResponse>> getCommonFilms(

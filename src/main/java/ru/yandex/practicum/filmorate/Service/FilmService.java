@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface FilmService {
 
@@ -24,9 +25,7 @@ public interface FilmService {
 
     Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy);
 
-    void delete(int filmId);
-}
-    Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId,String sortBy);
+    @org.jetbrains.annotations.NotNull List<FilmResponse> delete(int filmId);
 
     Collection<FilmResponse> getCommonFilms(int userId, int friendId);
 }

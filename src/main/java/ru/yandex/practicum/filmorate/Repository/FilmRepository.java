@@ -22,6 +22,6 @@ public interface FilmRepository {
     Collection<Film> getDirectorFilmsByYear(int directorId);
 
     boolean delete(int filmId);
-}
+
     Collection<Film> getCommonFilms(int userId, int friendId);
 }

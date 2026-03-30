@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -168,7 +169,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void delete(int filmId) {
+    public @org.jetbrains.annotations.NotNull List<FilmResponse> delete(int filmId) {
         if (filmRepository.findById(filmId).isEmpty()) {
             throw new NotFoundException("Фильма с id: " + filmId + " не существует");
         }
@@ -176,6 +177,9 @@ public class FilmServiceImpl implements FilmService {
         if (!deleted) {
             throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
         }
+        return List.of();
+    }
+
     public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
