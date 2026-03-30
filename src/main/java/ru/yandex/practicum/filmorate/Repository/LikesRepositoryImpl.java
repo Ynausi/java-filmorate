@@ -10,6 +10,8 @@ public class LikesRepositoryImpl extends BaseRepository<Likes> implements LikesR
     private static final String ADD_LIKE_TO_TAB = "INSERT INTO Likes (userId,filmId)" +
             "Values (?,?)";
     private static final String DELETE_LIKE_FROM_TAB = "DELETE FROM Likes WHERE filmId = ? AND userId = ?";
+    private static final String DELETE_ALL_LIKES_FOR_FILM = "DELETE FROM Likes WHERE filmId = ?";
+    private static final String DELETE_ALL_LIKES_FOR_USER = "DELETE FROM Likes WHERE userId = ?";
 
     public LikesRepositoryImpl(JdbcTemplate jdbc, RowMapper<Likes> mapper) {
         super(jdbc, mapper);
@@ -25,5 +27,15 @@ public class LikesRepositoryImpl extends BaseRepository<Likes> implements LikesR
         deleteFromTableWithDiffKey(DELETE_LIKE_FROM_TAB,
                 filmId,
                 userId);
+    }
+
+    @Override
+    public void deleteAllLikesForFilm(int filmId) {
+        jdbc.update(DELETE_ALL_LIKES_FOR_FILM, filmId);
+    }
+
+    @Override
+    public void deleteAllLikesForUser(int userId) {
+        jdbc.update(DELETE_ALL_LIKES_FOR_USER, userId);
     }
 }

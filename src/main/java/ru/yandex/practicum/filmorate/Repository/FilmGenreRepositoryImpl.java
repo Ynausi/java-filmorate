@@ -11,6 +11,7 @@ import java.util.Optional;
 public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implements FilmGenreRepository {
     private static final String ADD_GENRE_TO_FILM = "INSERT INTO Film_Genre (filmId,genreId) VALUES(?,?)";
     private static final String FIND_BY_ID = "SELECT * FROM Film_Genre WHERE filmId = ?";
+    private static final String DELETE_ALL_GENRES_FOR_FILM = "DELETE FROM Film_Genre WHERE filmId = ?";
 
     public FilmGenreRepositoryImpl(JdbcTemplate jdbc, RowMapper<FilmGenre> mapper) {
         super(jdbc, mapper);
@@ -24,5 +25,10 @@ public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implement
     @Override
     public Optional<FilmGenre> findById(int id) {
         return findOne(FIND_BY_ID, id);
+    }
+
+    @Override
+    public void deleteAllGenresForFilm(int filmId) {
+        jdbc.update(DELETE_ALL_GENRES_FOR_FILM, filmId);
     }
 }

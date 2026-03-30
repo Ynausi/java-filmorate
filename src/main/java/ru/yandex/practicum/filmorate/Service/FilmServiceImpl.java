@@ -20,7 +20,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -193,15 +192,19 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public @org.jetbrains.annotations.NotNull List<FilmResponse> delete(int filmId) {
+    public void delete(int filmId) {
         if (filmRepository.findById(filmId).isEmpty()) {
             throw new NotFoundException("Фильма с id: " + filmId + " не существует");
         }
+
+        likesRepository.deleteAllLikesForFilm(filmId);
+
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+
         boolean deleted = filmRepository.delete(filmId);
         if (!deleted) {
             throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
         }
-        return List.of();
     }
 
     public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
