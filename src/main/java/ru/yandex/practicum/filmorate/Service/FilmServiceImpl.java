@@ -190,7 +190,7 @@ public class FilmServiceImpl implements FilmService {
             filmDirectorsRepository.addDirectorToFilm(filmdId,director.getId());
         }
     }
-}
+    
     @Override
     public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
         userRepository.findById(userId)
