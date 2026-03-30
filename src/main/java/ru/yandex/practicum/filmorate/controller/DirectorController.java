@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
-import ru.yandex.practicum.filmorate.Service.DirectorImpl;
 import ru.yandex.practicum.filmorate.Service.DirectorService;
 import ru.yandex.practicum.filmorate.model.Director;
 
