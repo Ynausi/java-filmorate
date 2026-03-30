@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.mappers;
 
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.model.FriendStatus;
 import ru.yandex.practicum.filmorate.model.Friendship;
 
@@ -11,6 +13,8 @@ import java.sql.SQLException;
 @Repository
 public class FriendshipRowMapper implements RowMapper<Friendship> {
     @Override
+    @Loggable(value = "Пребразование Friendship",level = LogLevel.DEBUG)
+    public Friendship mapRow(ResultSet resultSet,int rowNum) throws SQLException {
     public Friendship mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Friendship friendship = new Friendship();
         friendship.setUserId(resultSet.getInt("userId"));

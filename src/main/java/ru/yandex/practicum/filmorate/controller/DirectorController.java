@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/films/directors")
+@RequestMapping("/directors")
 @RequiredArgsConstructor
 public class DirectorController {
     private final DirectorService directorService;
@@ -50,7 +50,7 @@ public class DirectorController {
     @Loggable(value = "Удаление режиссёра", level = LogLevel.INFO)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDirector(@PathVariable("id") int id) {
-        return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM)
+        return ResponseEntity.ok()
                 .body(directorService.delete(id));
     }
 }

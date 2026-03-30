@@ -24,7 +24,7 @@ public class FilmRequest {
     private LocalDate releaseDate;
     @PositiveOrZero
     private Integer duration;
-    private Director director;
+    private Set<Director> directors = new HashSet<>();
     private Set<Genre> genres = new HashSet<>();
     private Rating mpa;
 }

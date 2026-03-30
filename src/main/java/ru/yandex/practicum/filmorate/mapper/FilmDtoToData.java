@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.mapper;
 
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 
 @Component
 public class FilmDtoToData {
+    @Loggable(value = "Пребразование FilmDtoToData",level = LogLevel.DEBUG)
     public Film toData(FilmDto dto) {
         Film film = new Film();
         if (dto.getId() != null) {

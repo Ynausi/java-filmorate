@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.dal.mappers;
 
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.model.Likes;
 
 import java.sql.ResultSet;
@@ -11,6 +13,8 @@ import java.sql.SQLException;
 public class LikesRowMapper implements RowMapper<Likes> {
     @Override
     public Likes mapRow(ResultSet resultSet, int numRow) throws SQLException {
+    @Loggable(value = "Пребразование Likes",level = LogLevel.INFO)
+    public Likes mapRow(ResultSet resultSet,int numRow) throws SQLException {
         Likes likes = new Likes();
         likes.setUserId(resultSet.getInt("userId"));
         likes.setFilmId(resultSet.getInt("filmId"));
