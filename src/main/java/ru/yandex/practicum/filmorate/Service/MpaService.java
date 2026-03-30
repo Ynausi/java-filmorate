@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.Service;
 
-
 import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.util.Collection;
