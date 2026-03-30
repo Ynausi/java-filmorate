@@ -14,7 +14,7 @@ public interface FilmRepository {
 
     Film update(Film film);
 
-    Collection<Film> getPopularFilms(int count);
+    Collection<Film> getPopularFilms(int count, Integer genreId, Integer year);
 
     Collection<Film> getDirectorFilmsByLikes(int directorId);
 

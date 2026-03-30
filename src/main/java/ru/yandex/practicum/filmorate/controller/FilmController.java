@@ -34,11 +34,13 @@ public class FilmController {
         return filmService.findById(filmId);
     }
 
-    @Loggable(value = "Получить список популярных фильмов",level = LogLevel.INFO)
+    @Loggable(value = "Получить список популярных фильмов", level = LogLevel.INFO)
     @GetMapping("/popular")
     public ResponseEntity<Collection<FilmResponse>> getPopularFilms(
-            @RequestParam(name = "count",defaultValue = "10") int count) {
-        return ResponseEntity.ok(filmService.getPopularFilms(count));
+            @RequestParam(name = "count", defaultValue = "10") int count,
+            @RequestParam(name = "genreId", required = false) Integer genreId,
+            @RequestParam(name = "year", required = false) Integer year) {
+        return ResponseEntity.ok(filmService.getPopularFilms(count, genreId, year));
     }
 
     @Loggable(value = "Добавление фильма",level = LogLevel.INFO)

@@ -130,8 +130,8 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Collection<FilmResponse> getPopularFilms(int count) {
-        return filmRepository.getPopularFilms(count)
+    public Collection<FilmResponse> getPopularFilms(int count, Integer genreId, Integer year) {
+        return filmRepository.getPopularFilms(count, genreId, year)
                 .stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
