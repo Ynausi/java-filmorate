@@ -70,8 +70,8 @@ public class FilmController {
         return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId, userId));
     }
 
-    @Loggable(value = "Получить список популярных фильмов", level = LogLevel.INFO)
-    @GetMapping("/directors/{directorId}")
+    @Loggable(value = "Получить список фильмов по лайкам или году",level = LogLevel.INFO)
+    @GetMapping("/director/{directorId}")
     public ResponseEntity<Collection<FilmResponse>> getDirectorFilmsSortedByYearOrLikes(
             @PathVariable("directorId") int directorId,
             @RequestParam(name = "sortBy") String sortBy) {

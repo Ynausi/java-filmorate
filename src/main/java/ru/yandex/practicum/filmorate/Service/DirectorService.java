@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.Service;
 
 import ru.yandex.practicum.filmorate.model.Director;
-
 import java.util.Collection;
-import java.util.Optional;
 
 public interface DirectorService {
 
