@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.Service.FilmService;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.net.URI;
 import java.util.Collection;
 
@@ -20,7 +21,7 @@ import java.util.Collection;
 public class FilmController {
     private final FilmService filmService;
 
-    @Loggable(value = "Получение всех фильмов",level = LogLevel.INFO)
+    @Loggable(value = "Получение всех фильмов", level = LogLevel.INFO)
     @GetMapping
     public ResponseEntity<Collection<?>> getAll() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
@@ -28,7 +29,7 @@ public class FilmController {
     }
 
 
-    @Loggable(value = "Получение фильма",level = LogLevel.INFO)
+    @Loggable(value = "Получение фильма", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public FilmResponse getById(@PathVariable("id") int filmId) {
         return filmService.findById(filmId);
@@ -42,8 +43,8 @@ public class FilmController {
             @RequestParam(name = "year", required = false) Integer year) {
         return ResponseEntity.ok(filmService.getPopularFilms(count, genreId, year));
     }
-
-    @Loggable(value = "Добавление фильма",level = LogLevel.INFO)
+  
+    @Loggable(value = "Добавление фильма", level = LogLevel.INFO)
     @PostMapping
     public ResponseEntity<FilmResponse> createFilm(@Valid @RequestBody FilmRequest film) {
         FilmResponse created = filmService.save(film);
@@ -51,7 +52,7 @@ public class FilmController {
                 .body(created);
     }
 
-    @Loggable(value = "Изменение данных",level = LogLevel.INFO)
+    @Loggable(value = "Изменение данных", level = LogLevel.INFO)
     @PutMapping()
     public ResponseEntity<FilmResponse> putFilm(@Valid @RequestBody FilmRequest film) {
         return ResponseEntity.ok(filmService.update(film));
@@ -60,22 +61,30 @@ public class FilmController {
     @Loggable(value = "Добавление лайка", level = LogLevel.INFO)
     @PutMapping("/{id}/like/{userId}")
     public ResponseEntity<Film> addLikeToFilm(@PathVariable("id") int filmId,
-                              @PathVariable("userId") int userId) {
-        return ResponseEntity.ok(filmService.addLikeToFilm(filmId,userId));
+                                              @PathVariable("userId") int userId) {
+        return ResponseEntity.ok(filmService.addLikeToFilm(filmId, userId));
     }
 
     @Loggable(value = "Удаление лайка", level = LogLevel.INFO)
     @DeleteMapping("/{id}/like/{userId}")
     public ResponseEntity<Film> deleteLike(@PathVariable("id") int filmId,
-                           @PathVariable("userId") int userId) {
-        return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId,userId));
+                                           @PathVariable("userId") int userId) {
+        return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId, userId));
     }
 
-    @Loggable(value = "Получить список популярных фильмов",level = LogLevel.INFO)
-    @GetMapping("/directors/{directorId}")
+    @Loggable(value = "Получить список фильмов по лайкам или году",level = LogLevel.INFO)
+    @GetMapping("/director/{directorId}")
     public ResponseEntity<Collection<FilmResponse>> getDirectorFilmsSortedByYearOrLikes(
             @PathVariable("directorId") int directorId,
             @RequestParam(name = "sortBy") String sortBy) {
-        return ResponseEntity.ok(filmService.getDirectorFilmsByLikesOrYear(directorId,sortBy));
+        return ResponseEntity.ok(filmService.getDirectorFilmsByLikesOrYear(directorId, sortBy));
+    }
+
+    @Loggable(value = "Получить список общих фильмов с сортировкой по популярности", level = LogLevel.INFO)
+    @GetMapping("/common")
+    public ResponseEntity<Collection<FilmResponse>> getCommonFilms(
+            @RequestParam("userId") int userId,
+            @RequestParam("friendId") int friendId) {
+        return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
     }
 }

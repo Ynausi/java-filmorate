@@ -27,7 +27,6 @@ public class MpaController {
                 .body(mpaService.findAllRatings());
     }
 
-
     @Loggable(value = "Получение рейтинга по id",level = LogLevel.INFO)
     @GetMapping("/{id}")
     public Rating getById(@PathVariable("id") int ratingId) {

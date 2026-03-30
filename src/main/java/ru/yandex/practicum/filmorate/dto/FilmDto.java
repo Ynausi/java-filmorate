@@ -16,7 +16,7 @@ public class FilmDto {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private Director director;
+    private Set<Director> directors = new HashSet<>();
     private Integer directorId;
     private Set<Genre> genres = new HashSet<>();
     private Integer ratingId;

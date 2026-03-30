@@ -15,7 +15,7 @@ public class FilmResponse {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
-    private Director director;
+    private Set<Director> directors = new HashSet<>();
     private Rating mpa;
     private Set<Genre> genres = new HashSet<>();
 }
