@@ -4,10 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public class InMemoryFilmRepository extends BaseRepository<Film> implements FilmRepository {
@@ -30,7 +27,7 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
 
     @Override
     public Optional<Film> findById(int id) {
-        return findOne(FIND_BY_ID, id);
+        return findOne(FIND_BY_ID,id);
     }
 
     @Override
@@ -63,60 +60,35 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
     public Collection<Film> getPopularFilms(int count) {
         final String GET_POPULAR_FILMS =
                 "SELECT f.*,COALESCE(l.likes_count,0) AS likes_count " +
-                        "FROM Films f " +
-                        "LEFT JOIN (" +
-                        "SELECT filmId, COUNT(*) as likes_count " +
-                        "FROM Likes " +
-                        "GROUP BY filmId " +
-                        ") l ON f.id = l.filmId " +
-                        "ORDER BY likes_count DESC " +
-                        "LIMIT " + count;
+                "FROM Films f " +
+                "LEFT JOIN (" +
+                    "SELECT filmId, COUNT(*) as likes_count " +
+                    "FROM Likes " +
+                    "GROUP BY filmId " +
+                    ") l ON f.id = l.filmId " +
+                "ORDER BY likes_count DESC " +
+                "LIMIT " + count;
         return findMany(GET_POPULAR_FILMS);
     }
 
     @Override
     public Collection<Film> getDirectorFilmsByLikes(int directorId) {
         final String GET_DIRECTORS_FILMS_BY_LIKES =
-                        "SELECT f.*, COALESCE(l.likes_count,0) AS likes_count " +
-                        "FROM Films f " +
-                        "JOIN Film_Directors fd ON f.id = fd.filmId " +
-                        "LEFT JOIN ( " +
+                        "SELECT *,COALESCE(l.likes_count,0) AS likes_count " +
+                        "FROM Films " +
+                        "LEFT JOIN(" +
                                 "SELECT filmId, COUNT(*) as likes_count " +
                                 "FROM Likes " +
                                 "GROUP BY filmId " +
                                 ") l ON f.id = l.filmId " +
-                        "WHERE fd.directorId = ? " +
+                        "WHERE directorId = ? " +
                         "ORDER BY likes_count DESC";
-        return findMany(GET_DIRECTORS_FILMS_BY_LIKES,directorId);
+        return findMany(GET_DIRECTORS_FILMS_BY_LIKES);
     }
 
     @Override
     public Collection<Film> getDirectorFilmsByYear(int directorId) {
-        final String GET_DIRECTORS_FILMS_BY_YEAR =
-                        "SELECT f.* " +
-                        "FROM Films f " +
-                        "JOIN Film_Directors fd ON f.id = fd.filmId " +
-                        "WHERE fd.directorId = ? " +
-                        "ORDER BY EXTRACT(YEAR FROM f.releaseDate) ASC";
-        return findMany(GET_DIRECTORS_FILMS_BY_YEAR,directorId);
+        return List.of();
     }
 
-    @Override
-    public Collection<Film> getCommonFilms(int userId, int friendId) {
-        final String GET_COMMON_FILMS =
-                "SELECT f.*, COALESCE(l.likes_count, 0) AS likes_count " +
-                        "FROM Films f " +
-                        "LEFT JOIN (" +
-                        "SELECT filmId, COUNT(*) AS likes_count " +
-                        "FROM Likes " +
-                        "GROUP BY filmId" +
-                        ") l ON f.id = l.filmId " +
-                        "WHERE f.id IN (" +
-                        "SELECT filmId FROM Likes WHERE userId = ? " +
-                        "INTERSECT " +
-                        "SELECT filmId FROM Likes WHERE userId = ?" +
-                        ") " +
-                        "ORDER BY likes_count DESC, f.id";
-        return findMany(GET_COMMON_FILMS, userId, friendId);
-    }
 }

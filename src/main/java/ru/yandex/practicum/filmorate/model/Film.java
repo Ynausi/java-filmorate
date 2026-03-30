@@ -15,5 +15,4 @@ public class Film {
     private LocalDate releaseDate;
     private Integer ratingId;
     private Integer duration;
-    private Integer directorId;
 }

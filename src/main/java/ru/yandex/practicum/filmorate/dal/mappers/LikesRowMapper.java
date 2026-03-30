@@ -11,7 +11,7 @@ import java.sql.SQLException;
 @Repository
 public class LikesRowMapper implements RowMapper<Likes> {
     @Override
-    @Loggable(value = "Пребразование Likes",level = LogLevel.INFO)
+    @Loggable(value = "Пребразование Likes",level = LogLevel.DEBUG)
     public Likes mapRow(ResultSet resultSet,int numRow) throws SQLException {
         Likes likes = new Likes();
         likes.setUserId(resultSet.getInt("userId"));

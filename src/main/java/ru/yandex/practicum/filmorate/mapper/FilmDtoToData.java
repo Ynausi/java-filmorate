@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 @Component
 public class FilmDtoToData {
-    @Loggable(value = "Пребразование FilmDtoToData",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование FilmDtoToData",level = LogLevel.INFO)
     public Film toData(FilmDto dto) {
         Film film = new Film();
         if (dto.getId() != null) {
@@ -18,7 +18,6 @@ public class FilmDtoToData {
         film.setDescription(dto.getDescription());
         film.setReleaseDate(dto.getReleaseDate());
         film.setDuration(dto.getDuration());
-        film.setDirectorId(dto.getDirectorId());
         film.setRatingId(dto.getRatingId());
         return film;
     }

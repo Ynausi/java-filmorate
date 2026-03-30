@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
+import ru.yandex.practicum.filmorate.Service.DirectorImpl;
 import ru.yandex.practicum.filmorate.Service.DirectorService;
 import ru.yandex.practicum.filmorate.model.Director;
 
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/directors")
+@RequestMapping("/films/directors")
 @RequiredArgsConstructor
 public class DirectorController {
     private final DirectorService directorService;
@@ -50,7 +51,7 @@ public class DirectorController {
     @Loggable(value = "Удаление режиссёра",  level = LogLevel.INFO)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDirector(@PathVariable("id") int id) {
-        return ResponseEntity.ok()
+        return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(directorService.delete(id));
     }
 }
