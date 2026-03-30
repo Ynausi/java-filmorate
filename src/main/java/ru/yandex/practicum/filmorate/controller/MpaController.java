@@ -20,14 +20,14 @@ import java.util.Collection;
 public class MpaController {
     private final MpaService mpaService;
 
-    @Loggable(value = "Получение фильмов c рейтингом",level = LogLevel.INFO)
+    @Loggable(value = "Получение фильмов c рейтингом", level = LogLevel.INFO)
     @GetMapping
     public ResponseEntity<Collection<?>> getAll() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(mpaService.findAllRatings());
     }
 
-    @Loggable(value = "Получение рейтинга по id",level = LogLevel.INFO)
+    @Loggable(value = "Получение рейтинга по id", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public Rating getById(@PathVariable("id") int ratingId) {
         return mpaService.findById(ratingId);

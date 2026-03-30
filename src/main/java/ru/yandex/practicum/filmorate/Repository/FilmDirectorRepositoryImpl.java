@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.FilmDirector;
+
 import java.util.Optional;
 
 @Repository
@@ -18,18 +19,16 @@ public class FilmDirectorRepositoryImpl extends BaseRepository<FilmDirector> imp
 
     @Override
     public void addDirectorToFilm(int filmId, int directorId) {
-        update(ADD_DIRECTOR_TO_FILM,filmId,directorId);
+        update(ADD_DIRECTOR_TO_FILM, filmId, directorId);
     }
 
     @Override
     public Optional<FilmDirector> findById(int id) {
-        return findOne(FIND_BY_ID,id);
+        return findOne(FIND_BY_ID, id);
     }
 
     @Override
     public void deleteDirectorsFromFilm(int filmId) {
-        delete(DELETE_DIRECTORS_AT_FILM,filmId);
+        delete(DELETE_DIRECTORS_AT_FILM, filmId);
     }
-
-
 }

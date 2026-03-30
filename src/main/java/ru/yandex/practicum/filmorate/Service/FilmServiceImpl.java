@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.Repository.*;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.*;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
@@ -78,7 +78,7 @@ public class FilmServiceImpl implements FilmService {
                 if (directorRepository.findById(director.getId()).isEmpty()) {
                     throw new NotFoundException("No such director");
                 }
-                filmDirectorsRepository.addDirectorToFilm(dto.getId(),director.getId());
+                filmDirectorsRepository.addDirectorToFilm(dto.getId(), director.getId());
             }
             dto.setDirectors(directorRepository.findAllDirectorsForFilm(dto.getId()));
             System.out.println(dto.getDirectors());
@@ -98,7 +98,7 @@ public class FilmServiceImpl implements FilmService {
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
-        updateDirectors(dto.getId(),dto.getDirectors());
+        updateDirectors(dto.getId(), dto.getDirectors());
         Film forUpdate = filmDtoToData.toData(dto);
         Film update = filmRepository.update(forUpdate);
         return buildFilmResponse(forUpdate);
@@ -148,8 +148,8 @@ public class FilmServiceImpl implements FilmService {
     public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
         if (sortBy.equals("likes")) {
             return filmRepository.getDirectorFilmsByLikes(directorId).stream()
-                .map(this::buildFilmResponse)
-                .collect(Collectors.toList());
+                    .map(this::buildFilmResponse)
+                    .collect(Collectors.toList());
         } else if (sortBy.equals("year")) {
             return filmRepository.getDirectorFilmsByYear(directorId).stream()
                     .map(this::buildFilmResponse)
@@ -187,11 +187,26 @@ public class FilmServiceImpl implements FilmService {
             if (directorRepository.findById(director.getId()).isEmpty()) {
                 throw new NotFoundException("No such director");
             }
-            filmDirectorsRepository.addDirectorToFilm(filmdId,director.getId());
+            filmDirectorsRepository.addDirectorToFilm(filmdId, director.getId());
         }
     }
-}
+
     @Override
+    public void delete(int filmId) {
+        if (filmRepository.findById(filmId).isEmpty()) {
+            throw new NotFoundException("Фильма с id: " + filmId + " не существует");
+        }
+
+        likesRepository.deleteAllLikesForFilm(filmId);
+
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+
+        boolean deleted = filmRepository.delete(filmId);
+        if (!deleted) {
+            throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
+        }
+    }
+
     public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));

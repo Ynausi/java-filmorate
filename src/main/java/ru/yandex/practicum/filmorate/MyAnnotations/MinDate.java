@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = MinDateValidator.class)
 public @interface MinDate {
     String message() default "Фильмы тогда ещё не создали";
-    Class<?>[] groups() default{};
+
+    Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

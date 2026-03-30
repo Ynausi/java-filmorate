@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.MyAnnotations;
 
 import org.springframework.boot.logging.LogLevel;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,5 +11,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Loggable {
     String value();
+
     LogLevel level() default LogLevel.INFO;
 }

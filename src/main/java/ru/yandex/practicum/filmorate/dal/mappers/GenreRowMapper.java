@@ -13,8 +13,8 @@ import java.sql.SQLException;
 @Repository
 public class GenreRowMapper implements RowMapper<Genre> {
     @Override
-    @Loggable(value = "Пребразование Genre",level = LogLevel.DEBUG)
-    public Genre mapRow(ResultSet resultSet,int numRow) throws SQLException {
+    @Loggable(value = "Пребразование Genre", level = LogLevel.DEBUG)
+    public Genre mapRow(ResultSet resultSet, int numRow) throws SQLException {
         Genre genre = new Genre();
         genre.setId(resultSet.getInt("id"));
         genre.setName(GenreEnum.valueOf(resultSet.getString("name")));
