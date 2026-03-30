@@ -1,13 +1,16 @@
--- Создаём таблицу режиссёров
 CREATE TABLE IF NOT EXISTS Directors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
 
--- Добавляем столбец directorId в таблицу Films
-ALTER TABLE Films ADD COLUMN directorId INT;
+ALTER TABLE Films DROP COLUMN IF EXISTS director;
+ALTER TABLE Films DROP CONSTRAINT IF EXISTS fk_films_director;
+ALTER TABLE Films DROP COLUMN IF EXISTS directorId;
 
--- Добавляем внешний ключ
-ALTER TABLE Films
-    ADD CONSTRAINT fk_films_director
-    FOREIGN KEY (directorId) REFERENCES Directors(id);
+CREATE TABLE IF NOT EXISTS Film_Directors (
+    filmId INT NOT NULL,
+    directorId INT NOT NULL,
+    PRIMARY KEY (filmId, directorId),
+    FOREIGN KEY (filmId) REFERENCES Films(id),
+    FOREIGN KEY (directorId) REFERENCES Directors(id)
+);

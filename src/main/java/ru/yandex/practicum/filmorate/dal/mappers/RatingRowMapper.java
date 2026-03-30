@@ -13,7 +13,7 @@ import java.sql.SQLException;
 @Repository
 public class RatingRowMapper implements RowMapper<Rating> {
     @Override
-    @Loggable(value = "Пребразование Rating",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование Rating", level = LogLevel.DEBUG)
     public Rating mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Rating rating = new Rating();
         rating.setId(resultSet.getInt("id"));

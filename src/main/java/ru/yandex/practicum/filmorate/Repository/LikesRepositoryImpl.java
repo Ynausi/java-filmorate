@@ -26,5 +26,4 @@ public class LikesRepositoryImpl extends BaseRepository<Likes> implements LikesR
                 filmId,
                 userId);
     }
-
 }

@@ -51,7 +51,6 @@ public class UserController {
                 .body(created);
     }
 
-
     @Loggable(value = "Изменение данных", level = LogLevel.INFO)
     @PutMapping()
     public ResponseEntity<User> putUser(@Valid @RequestBody User user) {

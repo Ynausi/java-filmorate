@@ -13,8 +13,7 @@ import java.sql.SQLException;
 @Repository
 public class FriendshipRowMapper implements RowMapper<Friendship> {
     @Override
-    @Loggable(value = "Пребразование Friendship",level = LogLevel.DEBUG)
-    public Friendship mapRow(ResultSet resultSet,int rowNum) throws SQLException {
+    @Loggable(value = "Пребразование Friendship", level = LogLevel.DEBUG)
     public Friendship mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Friendship friendship = new Friendship();
         friendship.setUserId(resultSet.getInt("userId"));

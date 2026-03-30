@@ -24,10 +24,8 @@ public class RatingRepositoryImpl extends BaseRepository<Rating> implements Rati
 
     @Override
     public Set<Rating> findAllRatingForFilm(int filmId) {
-        Collection<Rating> all = findMany(FIND_ALL_RATING_FOR_FILM,filmId);
-        return new LinkedHashSet<>(all);
         Collection<Rating> all = findMany(FIND_ALL_RATING_FOR_FILM, filmId);
-        return new HashSet<>(all);
+        return new LinkedHashSet<>(all);
     }
 
     @Override

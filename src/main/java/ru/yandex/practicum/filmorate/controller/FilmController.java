@@ -28,7 +28,6 @@ public class FilmController {
                 .body(filmService.findAll());
     }
 
-
     @Loggable(value = "Получение фильма", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public FilmResponse getById(@PathVariable("id") int filmId) {
@@ -70,7 +69,7 @@ public class FilmController {
         return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId, userId));
     }
 
-    @Loggable(value = "Получить список фильмов по лайкам или году",level = LogLevel.INFO)
+    @Loggable(value = "Получить список фильмов по лайкам или году", level = LogLevel.INFO)
     @GetMapping("/director/{directorId}")
     public ResponseEntity<Collection<FilmResponse>> getDirectorFilmsSortedByYearOrLikes(
             @PathVariable("directorId") int directorId,

@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.FilmGenre;
 
 import java.util.Optional;
 
-
 @Repository
 public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implements FilmGenreRepository {
     private static final String ADD_GENRE_TO_FILM = "INSERT INTO Film_Genre (filmId,genreId) VALUES(?,?)";
@@ -26,5 +25,4 @@ public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implement
     public Optional<FilmGenre> findById(int id) {
         return findOne(FIND_BY_ID, id);
     }
-
 }

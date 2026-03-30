@@ -24,7 +24,6 @@ public class GenreController {
                 .body(genreService.findAllFilmsWithGenre());
     }
 
-
     @Loggable(value = "Получение жанра по id", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public Genre getById(@PathVariable("id") int genreId) {

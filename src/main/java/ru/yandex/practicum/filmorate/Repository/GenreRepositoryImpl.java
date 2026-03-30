@@ -38,6 +38,4 @@ public class GenreRepositoryImpl extends BaseRepository<Genre> implements GenreR
     public Set<Genre> findAllGenres() {
         return new LinkedHashSet<>(findMany(FIND_ALL_GENRES));
     }
-
-
 }

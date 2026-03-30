@@ -28,6 +28,4 @@ public enum RatingEnum {
     RatingEnum(String title) {
         this.title = title;
     }
-
-
 }

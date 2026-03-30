@@ -12,9 +12,8 @@ import java.sql.SQLException;
 @Repository
 public class FilmRowMapper implements RowMapper<Film> {
     @Override
+    @Loggable(value = "Пребразование Film", level = LogLevel.DEBUG)
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-    @Loggable(value = "Пребразование Film",level = LogLevel.DEBUG)
-    public Film mapRow(ResultSet resultSet,int rowNum) throws SQLException {
         Film film = new Film();
         film.setId(resultSet.getInt("id"));
         film.setName(resultSet.getString("name"));
@@ -22,7 +21,6 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setReleaseDate(resultSet.getDate("releaseDate").toLocalDate());
         film.setRatingId(resultSet.getInt("ratingId"));
         film.setDuration(resultSet.getInt("duration"));
-        film.setDirectorId(resultSet.getInt("directorId"));
         return film;
     }
 }

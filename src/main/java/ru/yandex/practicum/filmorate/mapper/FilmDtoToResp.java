@@ -10,7 +10,7 @@ import java.util.Collections;
 
 @Component
 public class FilmDtoToResp {
-    @Loggable(value = "Пребразование FilmDtoToResp",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование FilmDtoToResp", level = LogLevel.DEBUG)
     public FilmResponse toResp(FilmDto dto) {
         FilmResponse filmResponse = new FilmResponse();
         filmResponse.setId(dto.getId());

@@ -13,8 +13,7 @@ import java.sql.SQLException;
 @Repository
 public class UserRowMapper implements RowMapper<User> {
     @Override
-    @Loggable(value = "Пребразование User",level = LogLevel.DEBUG)
-    public User mapRow(ResultSet resultSet,int rowNum) throws SQLException {
+    @Loggable(value = "Пребразование User", level = LogLevel.DEBUG)
     public User mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("id"));

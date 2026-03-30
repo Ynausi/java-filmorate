@@ -9,5 +9,4 @@ public interface FilmGenreRepository {
     void addGenreToFilm(int filmId, int genreId);
 
     Optional<FilmGenre> findById(int id);
-
 }

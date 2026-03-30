@@ -12,7 +12,7 @@ import java.sql.SQLException;
 @Repository
 public class DirectorRowMapper implements RowMapper<Director> {
     @Override
-    @Loggable(value = "Пребразование Director",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование Director", level = LogLevel.DEBUG)
     public Director mapRow(ResultSet resultSets, int rowNum) throws SQLException {
         Director director = new Director();
         director.setId(resultSets.getInt("id"));
