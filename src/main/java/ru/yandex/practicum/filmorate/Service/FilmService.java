@@ -21,7 +21,7 @@ public interface FilmService {
     Film deleteLikeFromFilm(int filmId, int userId);
 
     Collection<FilmResponse> getPopularFilms(int count);
-  
+
     Collection<FilmResponse> getPopularFilms(int count, Integer genreId, Integer year);
 
     Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy);
