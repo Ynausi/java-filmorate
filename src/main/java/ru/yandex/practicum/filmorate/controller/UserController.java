@@ -7,10 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.Service.UserService;
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,5 +77,11 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable("userId") int userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build(); // HTTP 204 No Content
+    }
+
+    @Loggable(value = "Получение рекомендаций для пользователя", level = LogLevel.INFO)
+    @GetMapping("/{id}/recommendations")
+    public ResponseEntity<Collection<FilmResponse>> getRecommendations(@PathVariable("id") int userId) {
+        return ResponseEntity.ok(userService.getRecommendations(userId));
     }
 }
