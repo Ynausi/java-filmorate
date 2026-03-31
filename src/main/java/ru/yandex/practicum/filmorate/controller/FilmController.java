@@ -42,7 +42,7 @@ public class FilmController {
             @RequestParam(name = "year", required = false) Integer year) {
         return ResponseEntity.ok(filmService.getPopularFilms(count, genreId, year));
     }
-  
+
     @Loggable(value = "Добавление фильма", level = LogLevel.INFO)
     @PostMapping
     public ResponseEntity<FilmResponse> createFilm(@Valid @RequestBody FilmRequest film) {
