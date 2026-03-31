@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 public class FilmReqToFilmDto {
     private final RatingRepository ratingRepository;
 
-    @Loggable(value = "Пребразование FilmReqToFilmDto",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование FilmReqToFilmDto", level = LogLevel.DEBUG)
     public FilmDto toDto(FilmRequest filmRequest) {
         FilmDto dto = new FilmDto();
         dto.setName(filmRequest.getName());
@@ -32,4 +32,3 @@ public class FilmReqToFilmDto {
         return dto;
     }
 }
-

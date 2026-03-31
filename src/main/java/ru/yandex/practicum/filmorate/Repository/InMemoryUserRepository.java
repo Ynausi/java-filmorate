@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.FriendStatus;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.*;
 
 @Repository
@@ -12,7 +13,7 @@ public class InMemoryUserRepository extends BaseRepository<User> implements User
     private static final String FIND_ALL_USERS = "SELECT * FROM Users";
     private static final String FIND_BY_ID = "SELECT * FROM Users WHERE id = ?";
     private static final String PUT_USER = "INSERT INTO Users(email, login, name, birthday) " +
-             "Values (?,?,?,?)";
+            "Values (?,?,?,?)";
     private static final String UPDATE_USER = "UPDATE Users SET " +
             "email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
     private static final String FIND_USER_FRIENDS = "SELECT u.* " +
@@ -30,6 +31,7 @@ public class InMemoryUserRepository extends BaseRepository<User> implements User
             "FROM Friendship " +
             "WHERE userId = ? " +
             ")";
+    private static final String DELETE_USER = "DELETE FROM Users WHERE id = ?";
 
     public InMemoryUserRepository(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -42,7 +44,7 @@ public class InMemoryUserRepository extends BaseRepository<User> implements User
 
     @Override
     public Optional<User> findById(int id) {
-        return findOne(FIND_BY_ID,id);
+        return findOne(FIND_BY_ID, id);
     }
 
     @Override
@@ -71,12 +73,16 @@ public class InMemoryUserRepository extends BaseRepository<User> implements User
 
     @Override
     public Collection<User> getUserFriends(int userId) {
-        return findMany(FIND_USER_FRIENDS,userId, FriendStatus.CONFIRMED.name());
+        return findMany(FIND_USER_FRIENDS, userId, FriendStatus.CONFIRMED.name());
     }
 
     @Override
-    public Collection<User> getCommonFriends(int userId,int friendId) {
-        return findMany(FIND_COMMON_FRIENDS,userId,friendId);
+    public Collection<User> getCommonFriends(int userId, int friendId) {
+        return findMany(FIND_COMMON_FRIENDS, userId, friendId);
     }
 
+    @Override
+    public boolean delete(int userId) {
+        return delete(DELETE_USER, userId);
+    }
 }
