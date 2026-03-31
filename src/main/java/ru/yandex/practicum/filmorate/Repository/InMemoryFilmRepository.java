@@ -61,34 +61,22 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
     }
 
     @Override
+    public Collection<Film> getPopularFilms(int count) {
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
     public Collection<Film> getPopularFilms(int count, Integer genreId, Integer year) {
-        List<Object> params = new ArrayList<>();
-
-        StringBuilder sql = new StringBuilder(
+        final String sql =
                 "SELECT f.* FROM Films f " +
-                        "LEFT JOIN (SELECT filmId, COUNT(*) as likes_count FROM Likes GROUP BY filmId) l ON f.id = l.filmId "
-        );
-
-        if (genreId != null) {
-            sql.append("INNER JOIN Film_Genre fg ON f.id = fg.filmId ");
-        }
-
-        sql.append("WHERE 1=1 ");
-
-        if (genreId != null) {
-            sql.append("AND fg.genreId = ? ");
-            params.add(genreId);
-        }
-
-        if (year != null) {
-            sql.append("AND EXTRACT(YEAR FROM f.releaseDate) = ? ");
-            params.add(year);
-        }
-
-        sql.append("ORDER BY COALESCE(l.likes_count, 0) DESC LIMIT ?");
-        params.add(count);
-
-        return findMany(sql.toString(), params.toArray());
+                        "LEFT JOIN (SELECT filmId, COUNT(*) as likes_count FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
+                        "LEFT JOIN Film_Genre fg ON f.id = fg.filmId " +
+                        "WHERE (? IS NULL OR fg.genreId = ?) " +
+                        "AND (? IS NULL OR EXTRACT(YEAR FROM f.releaseDate) = ?) " +
+                        "GROUP BY f.id " +
+                        "ORDER BY COALESCE(l.likes_count, 0) DESC " +
+                        "LIMIT ?";
+        return findMany(sql, genreId, genreId, year, year, count);
     }
 
     @Override
