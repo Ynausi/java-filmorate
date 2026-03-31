@@ -37,33 +37,18 @@ public class ReviewServiceImpl implements ReviewService {
         if(userRepository.findById(review.getUserId()).isEmpty()) {
             throw new NotFoundException("No User with userId = " + review.getUserId());
         }
-        if (review.getIsPositive()) {
-            review.setUseful(+1);
-        } else {
-            review.setUseful(-1);
-        }
         return reviewRepository.save(review);
     }
 
     @Override
     public Review update(Review review) {
-        if (reviewRepository.findById(review.getReviewId()).isEmpty()) {
-            throw new NotFoundException("No Review with filmId = "+ review.getReviewId());
-        }
         if (filmRepository.findById(review.getFilmId()).isEmpty()) {
             throw new NotFoundException("No Film with filmId = "+ review.getFilmId());
         }
         if (userRepository.findById(review.getUserId()).isEmpty()) {
             throw new NotFoundException("No User with userId = " + review.getUserId());
         }
-        Review old = reviewRepository.findById(review.getReviewId()).orElseThrow(() ->
-                new NotFoundException("No review with reviewId = " + review.getReviewId()));;
-        if (review.getIsPositive()) {
-            review.setUseful(old.getUseful()+1);
-        } else {
-            review.setUseful(old.getUseful()-1);
-        }
-        return reviewRepository.update(review);
+        return reviewRepository.update(review).orElseThrow(() -> new NotFoundException("No Review with reviewId = " + review.getReviewId()));
     }
 
     @Override
@@ -74,5 +59,40 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Collection<Review> getReviewsForFilm(int filmId,int count) {
         return reviewRepository.getReviewsForFilm(filmId,count);
+    }
+
+    @Override
+    public Review addLikeOrDislike(int reviewId,int userId,String action ) {
+        boolean isLike;
+        if ("like".equals(action)) {
+            isLike = true;
+        } else if ("dislike".equals(action)) {
+            isLike = false;
+        } else {
+            throw new IllegalArgumentException("Unknown action: " + action);
+        }
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new NotFoundException("No Review with reviewId = " + reviewId));
+        if (userRepository.findById(review.getUserId()).isEmpty()) {
+            throw new NotFoundException("No User with userId = " + userId);
+        }
+        if (isLike) {
+            reviewRepository.addLike(review.getReviewId(),review.getUserId(),1 );
+        } else {
+            reviewRepository.addLike(review.getReviewId(), review.getUserId(), -1);
+        }
+        return reviewRepository.update(review).orElseThrow(() -> new NotFoundException("No Review with reviewId = " + review.getReviewId()));
+    }
+
+    @Override
+    public Review deleteLikeOrDislike(int reviewId,int userId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new NotFoundException("No Review with reviewId = " + reviewId));
+        if (userRepository.findById(review.getUserId()).isEmpty()) {
+            throw new NotFoundException("No User with userId = " + userId);
+        }
+        reviewRepository.deleteLike(review.getReviewId(),review.getUserId());
+        return reviewRepository.update(review).orElseThrow(
+                () -> new NotFoundException("No Review with reviewId = " + review.getReviewId()));
     }
 }

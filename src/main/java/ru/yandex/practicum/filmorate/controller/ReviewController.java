@@ -42,7 +42,7 @@ public class ReviewController {
 
     @Loggable(value = "Изменение данных отзыва",level = LogLevel.INFO)
     @PutMapping
-    public ResponseEntity<Review> updateReview(@Valid @RequestBody Review review) {
+    public ResponseEntity<?> updateReview(@Valid @RequestBody Review review) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(reviewService.update(review));
     }
@@ -61,4 +61,31 @@ public class ReviewController {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(reviewService.getReviewsForFilm(filmId,count));
     }
+
+    @Loggable(value = "Добавление лайка для отзыва",level = LogLevel.INFO)
+    @PutMapping("/{id}/{action}/{userId}")
+    public ResponseEntity<Review> addLikeToReview(@PathVariable("id") int reviewId,
+                                                  @PathVariable("action") String action,
+                                                  @PathVariable("userId") int userId) {
+
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(reviewService.addLikeOrDislike(reviewId,userId,action));
+    }
+
+
+
+    @Loggable(value = "Добавление лайка для отзыва",level = LogLevel.INFO)
+    @DeleteMapping("/{id}/{action}/{userId}")
+    public ResponseEntity<Review> deleteLikeToReview(@PathVariable("id") int reviewId,
+                                                  @PathVariable("action") String action,
+                                                  @PathVariable("userId") int userId) {
+        boolean isLike;
+        if (!"like".equals(action) && !"dislike".equals(action)) {
+            throw new IllegalArgumentException("Unknown action: " + action);
+        }
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(reviewService.deleteLikeOrDislike(reviewId,userId));
+    }
+
+
 }

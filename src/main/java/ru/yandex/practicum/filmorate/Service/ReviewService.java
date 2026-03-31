@@ -18,4 +18,8 @@ public interface ReviewService {
     boolean delete(int reviewId);
 
     Collection<Review> getReviewsForFilm(int filmId,int count);
+
+    Review addLikeOrDislike(int reviewId,int userId,String action);
+
+    Review deleteLikeOrDislike(int reviewId,int userId);
 }

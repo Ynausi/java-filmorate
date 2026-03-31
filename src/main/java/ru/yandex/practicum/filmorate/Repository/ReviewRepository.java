@@ -13,9 +13,15 @@ public interface ReviewRepository {
 
     Review save(Review review);
 
-    Review update(Review review);
+    Optional<Review> update(Review review);
 
     boolean delete(int reviewId);
 
     Collection<Review> getReviewsForFilm(int filmId,int count);
+
+    void addLike(int reviewId, int userId, int useful);
+
+    void deleteLike(int reviewId, int userId);
+
+    void updateUseful(int reviewId);
 }
