@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Rating;
+
 import java.util.*;
 
 @Repository
@@ -18,12 +19,12 @@ public class RatingRepositoryImpl extends BaseRepository<Rating> implements Rati
     }
 
     public Optional<Rating> findById(int id) {
-        return findOne(FIND_BY_Rating,id);
+        return findOne(FIND_BY_Rating, id);
     }
 
     @Override
     public Set<Rating> findAllRatingForFilm(int filmId) {
-        Collection<Rating> all = findMany(FIND_ALL_RATING_FOR_FILM,filmId);
+        Collection<Rating> all = findMany(FIND_ALL_RATING_FOR_FILM, filmId);
         return new LinkedHashSet<>(all);
     }
 
@@ -31,6 +32,4 @@ public class RatingRepositoryImpl extends BaseRepository<Rating> implements Rati
     public Set<Rating> findAllRating() {
         return new LinkedHashSet<>(findMany(FIND_ALL_RATINGS));
     }
-
-
 }

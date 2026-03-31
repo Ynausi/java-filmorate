@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Director {
-    private Integer id;
-    private String name;
+public class FilmDirector {
+    private int filmId;
+    private int directorId;
 }

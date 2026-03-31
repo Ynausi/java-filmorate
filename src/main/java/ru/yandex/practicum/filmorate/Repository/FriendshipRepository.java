@@ -6,5 +6,7 @@ public interface FriendshipRepository {
 
     public void addFriendShip(int userId, int friendId, FriendStatus friendStatus);
 
-    public void deleteFriendShip(int userId,int friendId);
+    public void deleteFriendShip(int userId, int friendId);
+
+    void deleteAllFriendshipsForUser(int userId);
 }

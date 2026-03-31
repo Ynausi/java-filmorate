@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
-
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
@@ -17,31 +16,31 @@ public class BaseRepository<T> {
     protected final JdbcTemplate jdbc;
     protected final RowMapper<T> mapper;
 
-    protected Optional<T> findOne(String query,Object... params) {
+    protected Optional<T> findOne(String query, Object... params) {
         try {
-            T result = jdbc.queryForObject(query,mapper,params);
+            T result = jdbc.queryForObject(query, mapper, params);
             return Optional.ofNullable(result);
         } catch (EmptyResultDataAccessException ignored) {
             return Optional.empty();
         }
     }
 
-    protected Collection<T> findMany(String query,Object... params) {
-        return jdbc.query(query,mapper,params);
+    protected Collection<T> findMany(String query, Object... params) {
+        return jdbc.query(query, mapper, params);
     }
 
-    protected boolean delete(String query,int id) {
-        int rowsDeleted = jdbc.update(query,id);
+    protected boolean delete(String query, int id) {
+        int rowsDeleted = jdbc.update(query, id);
         return rowsDeleted > 0;
     }
 
-    protected boolean deleteFromTableWithDiffKey(String query,int fId,int sId) {
-        int rowsDeleted = jdbc.update(query,fId,sId);
+    protected boolean deleteFromTableWithDiffKey(String query, int fId, int sId) {
+        int rowsDeleted = jdbc.update(query, fId, sId);
         return rowsDeleted > 0;
     }
 
-    protected void update(String query,Object... params) {
-        int rowsUpdate = jdbc.update(query,params);
+    protected void update(String query, Object... params) {
+        int rowsUpdate = jdbc.update(query, params);
         if (rowsUpdate == 0) {
             throw new InternalServerException("Не удалось обновить данные");
         }
@@ -55,9 +54,10 @@ public class BaseRepository<T> {
             for (int idx = 0; idx < params.length; idx++) {
                 ps.setObject(idx + 1, params[idx]);
             }
-            return ps; }, keyHolder);
+            return ps;
+        }, keyHolder);
 
-       Integer id = keyHolder.getKeyAs(Integer.class);
+        Integer id = keyHolder.getKeyAs(Integer.class);
 
         // Возвращаем id нового пользователя
         if (id != null) {
@@ -66,7 +66,4 @@ public class BaseRepository<T> {
             throw new InternalServerException("Не удалось сохранить данные");
         }
     }
-
-
-
 }

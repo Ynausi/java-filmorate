@@ -17,7 +17,7 @@ public enum RatingEnum {
     }
 
     public static RatingEnum fromTitle(String title) {
-        for (RatingEnum r:RatingEnum.values()) {
+        for (RatingEnum r : RatingEnum.values()) {
             if (r.getTitle().equals(title)) {
                 return r;
             }
@@ -28,6 +28,4 @@ public enum RatingEnum {
     RatingEnum(String title) {
         this.title = title;
     }
-
-
 }

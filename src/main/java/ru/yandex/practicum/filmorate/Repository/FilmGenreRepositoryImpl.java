@@ -4,13 +4,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
-import java.util.Optional;
 
+import java.util.Optional;
 
 @Repository
 public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implements FilmGenreRepository {
     private static final String ADD_GENRE_TO_FILM = "INSERT INTO Film_Genre (filmId,genreId) VALUES(?,?)";
     private static final String FIND_BY_ID = "SELECT * FROM Film_Genre WHERE filmId = ?";
+    private static final String DELETE_ALL_GENRES_FOR_FILM = "DELETE FROM Film_Genre WHERE filmId = ?";
 
     public FilmGenreRepositoryImpl(JdbcTemplate jdbc, RowMapper<FilmGenre> mapper) {
         super(jdbc, mapper);
@@ -18,12 +19,16 @@ public class FilmGenreRepositoryImpl extends BaseRepository<FilmGenre> implement
 
     @Override
     public void addGenreToFilm(int filmId, int genreId) {
-        update(ADD_GENRE_TO_FILM,filmId,genreId);
+        update(ADD_GENRE_TO_FILM, filmId, genreId);
     }
 
     @Override
     public Optional<FilmGenre> findById(int id) {
-        return findOne(FIND_BY_ID,id);
+        return findOne(FIND_BY_ID, id);
     }
 
+    @Override
+    public void deleteAllGenresForFilm(int filmId) {
+        jdbc.update(DELETE_ALL_GENRES_FOR_FILM, filmId);
+    }
 }

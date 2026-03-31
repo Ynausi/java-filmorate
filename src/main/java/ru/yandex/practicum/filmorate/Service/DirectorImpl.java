@@ -32,11 +32,17 @@ public class DirectorImpl implements DirectorService{
 
     @Override
     public Director update(Director director) {
+        if (directorRepository.findById(director.getId()).isEmpty()) {
+            throw new NotFoundException("No director with id: " + director.getId());
+        }
         return directorRepository.update(director);
     }
 
     @Override
     public boolean delete(int directorId) {
+        if (directorRepository.findById(directorId).isEmpty()) {
+            throw new NotFoundException("No director with id: " + directorId);
+        }
         return directorRepository.delete(directorId);
     }
 }
