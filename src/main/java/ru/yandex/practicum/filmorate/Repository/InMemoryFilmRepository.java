@@ -84,6 +84,7 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
         String sql = "SELECT f.* FROM Films f " +
                 "LEFT JOIN (SELECT filmId, COUNT(*) as likes FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
                 "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
                 "ORDER BY COALESCE(l.likes, 0) DESC";
         return findMany(sql, "%" + query + "%");
     }
@@ -95,6 +96,7 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
                 "JOIN Film_Directors fd ON f.id = fd.filmId " +
                 "JOIN Directors d ON fd.directorId = d.id " +
                 "WHERE LOWER(d.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
                 "ORDER BY COALESCE(l.likes, 0) DESC";
         return findMany(sql, "%" + query + "%");
     }
