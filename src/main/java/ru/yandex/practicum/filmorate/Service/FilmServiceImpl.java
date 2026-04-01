@@ -161,6 +161,28 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public Collection<FilmResponse> search(String query, String by) {
+        Collection<Film> films;
+
+        boolean searchByTitle = by.contains("title");
+        boolean searchByDirector = by.contains("director");
+
+        if (searchByTitle && searchByDirector) {
+            films = filmRepository.searchByTitleAndDirector(query);
+        } else if (searchByDirector) {
+            films = filmRepository.searchByDirector(query);
+        } else if (searchByTitle) {
+            films = filmRepository.searchByTitle(query);
+        } else {
+            films = filmRepository.searchByTitle(query);
+        }
+
+        return films.stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
         if (sortBy.equals("likes")) {
             return filmRepository.getDirectorFilmsByLikes(directorId).stream()
