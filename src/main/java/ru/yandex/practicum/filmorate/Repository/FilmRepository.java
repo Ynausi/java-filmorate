@@ -23,6 +23,12 @@ public interface FilmRepository {
 
     Collection<Film> getDirectorFilmsByYear(int directorId);
 
+    Collection<Film> searchByTitle(String query);
+
+    Collection<Film> searchByDirector(String query);
+
+    Collection<Film> searchByTitleAndDirector(String query);
+
     boolean delete(int filmId);
 
     Collection<Film> getCommonFilms(int userId, int friendId);

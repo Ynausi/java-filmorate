@@ -93,4 +93,12 @@ public class FilmController {
             @RequestParam("friendId") int friendId) {
         return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
     }
+
+    @Loggable(value = "Поиск фильмов", level = LogLevel.INFO)
+    @GetMapping("/search")
+    public ResponseEntity<Collection<FilmResponse>> search(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "by") String by) {
+        return ResponseEntity.ok(filmService.search(query, by));
+    }
 }
