@@ -70,7 +70,6 @@ public class FilmServiceImpl implements FilmService {
                 filmGenreRepository.addGenreToFilm(dto.getId(), genre.getId());
             }
             dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-            System.out.println(dto.getGenres());
         } else {
             dto.setGenres(Collections.emptySet());
         }
@@ -82,7 +81,6 @@ public class FilmServiceImpl implements FilmService {
                 filmDirectorsRepository.addDirectorToFilm(dto.getId(), director.getId());
             }
             dto.setDirectors(directorRepository.findAllDirectorsForFilm(dto.getId()));
-            System.out.println(dto.getDirectors());
         } else {
             dto.setDirectors(Collections.emptySet());
         }
