@@ -12,7 +12,7 @@ import java.util.*;
 public class DirectorRepositoryImpl extends BaseRepository implements DirectorRepository {
     private static final String FIND_ALL_DIRECTORS = "SELECT * FROM Directors";
     private static final String FIND_BY_ID = "SELECT * FROM Directors WHERE id = ?";
-    private static final String ADD_DIRECTOR = "INSERT INTO Directors name = ? VALUES(?)";
+    private static final String ADD_DIRECTOR = "INSERT INTO Directors (name) VALUES (?)";
     private static final String UPDATE_DIRECTOR = "UPDATE Directors SET name = ? WHERE id = ?";
     private static final String DELETE_DIRECTOR = "DELETE FROM Directors WHERE id = ?";
     private static final String FIND_DIRECTORS_FOR_FILM = "SELECT d.id, d.name " +

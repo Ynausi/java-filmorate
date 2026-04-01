@@ -62,17 +62,56 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
 
     @Override
     public Collection<Film> getPopularFilms(int count) {
-        final String GET_POPULAR_FILMS =
-                "SELECT f.*,COALESCE(l.likes_count,0) AS likes_count " +
-                        "FROM Films f " +
-                        "LEFT JOIN (" +
-                        "SELECT filmId, COUNT(*) as likes_count " +
-                        "FROM Likes " +
-                        "GROUP BY filmId " +
-                        ") l ON f.id = l.filmId " +
-                        "ORDER BY likes_count DESC " +
-                        "LIMIT " + count;
-        return findMany(GET_POPULAR_FILMS);
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count, Integer genreId, Integer year) {
+        final String sql =
+                "SELECT f.* FROM Films f " +
+                        "LEFT JOIN (SELECT filmId, COUNT(*) as likes_count FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
+                        "LEFT JOIN Film_Genre fg ON f.id = fg.filmId " +
+                        "WHERE (? IS NULL OR fg.genreId = ?) " +
+                        "AND (? IS NULL OR EXTRACT(YEAR FROM f.releaseDate) = ?) " +
+                        "GROUP BY f.id " +
+                        "ORDER BY COALESCE(l.likes_count, 0) DESC " +
+                        "LIMIT ?";
+        return findMany(sql, genreId, genreId, year, year, count);
+    }
+
+    @Override
+    public Collection<Film> searchByTitle(String query) {
+        String sql = "SELECT f.* FROM Films f " +
+                "LEFT JOIN (SELECT filmId, COUNT(*) as likes FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
+                "WHERE LOWER(f.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
+                "ORDER BY COALESCE(l.likes, 0) DESC";
+        return findMany(sql, "%" + query + "%");
+    }
+
+    @Override
+    public Collection<Film> searchByDirector(String query) {
+        String sql = "SELECT f.* FROM Films f " +
+                "LEFT JOIN (SELECT filmId, COUNT(*) as likes FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
+                "JOIN Film_Directors fd ON f.id = fd.filmId " +
+                "JOIN Directors d ON fd.directorId = d.id " +
+                "WHERE LOWER(d.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
+                "ORDER BY COALESCE(l.likes, 0) DESC";
+        return findMany(sql, "%" + query + "%");
+    }
+
+    @Override
+    public Collection<Film> searchByTitleAndDirector(String query) {
+        String sql = "SELECT f.* FROM Films f " +
+                "LEFT JOIN (SELECT filmId, COUNT(*) as likes FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
+                "LEFT JOIN Film_Directors fd ON f.id = fd.filmId " +
+                "LEFT JOIN Directors d ON fd.directorId = d.id " +
+                "WHERE LOWER(f.name) LIKE LOWER(?) OR LOWER(d.name) LIKE LOWER(?) " +
+                "GROUP BY f.id " +
+                "ORDER BY COALESCE(l.likes, 0) DESC";
+        String pattern = "%" + query + "%";
+        return findMany(sql, pattern, pattern);
     }
 
     @Override
@@ -123,5 +162,27 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
                         ") " +
                         "ORDER BY likes_count DESC, f.id";
         return findMany(GET_COMMON_FILMS, userId, friendId);
+    }
+
+    @Override
+    public Collection<Film> getRecommendations(int userId) {
+        final String GET_RECOMMENDATIONS =
+                "SELECT f.* " +
+                        "FROM Films f " +
+                        "JOIN Likes l ON f.id = l.filmId " +
+                        "WHERE l.userId = (" +
+                        "SELECT l2.userId " +
+                        "FROM Likes l1 " +
+                        "JOIN Likes l2 ON l1.filmId = l2.filmId " +
+                        "WHERE l1.userId = ? AND l2.userId <> ? " +
+                        "GROUP BY l2.userId " +
+                        "ORDER BY COUNT(*) DESC, l2.userId " +
+                        "LIMIT 1" +
+                        ") " +
+                        "AND f.id NOT IN (" +
+                        "SELECT filmId FROM Likes WHERE userId = ?" +
+                        ") " +
+                        "ORDER BY f.id";
+        return findMany(GET_RECOMMENDATIONS, userId, userId, userId);
     }
 }

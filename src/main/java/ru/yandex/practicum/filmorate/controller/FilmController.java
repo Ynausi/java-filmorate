@@ -37,8 +37,10 @@ public class FilmController {
     @Loggable(value = "Получить список популярных фильмов", level = LogLevel.INFO)
     @GetMapping("/popular")
     public ResponseEntity<Collection<FilmResponse>> getPopularFilms(
-            @RequestParam(name = "count", defaultValue = "10") int count) {
-        return ResponseEntity.ok(filmService.getPopularFilms(count));
+            @RequestParam(name = "count", defaultValue = "10") int count,
+            @RequestParam(name = "genreId", required = false) Integer genreId,
+            @RequestParam(name = "year", required = false) Integer year) {
+        return ResponseEntity.ok(filmService.getPopularFilms(count, genreId, year));
     }
 
     @Loggable(value = "Добавление фильма", level = LogLevel.INFO)
@@ -90,5 +92,13 @@ public class FilmController {
             @RequestParam("userId") int userId,
             @RequestParam("friendId") int friendId) {
         return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
+    }
+
+    @Loggable(value = "Поиск фильмов", level = LogLevel.INFO)
+    @GetMapping("/search")
+    public ResponseEntity<Collection<FilmResponse>> search(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "by") String by) {
+        return ResponseEntity.ok(filmService.search(query, by));
     }
 }
