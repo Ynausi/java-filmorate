@@ -26,4 +26,6 @@ public interface FilmRepository {
     boolean delete(int filmId);
 
     Collection<Film> getCommonFilms(int userId, int friendId);
+
+    Collection<Film> getRecommendations(int userId);
 }

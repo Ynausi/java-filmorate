@@ -9,11 +9,11 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
 import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmToDto;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
@@ -230,6 +230,17 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + friendId + " не существует."));
 
         return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+
+        return filmRepository.getRecommendations(userId)
                 .stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());

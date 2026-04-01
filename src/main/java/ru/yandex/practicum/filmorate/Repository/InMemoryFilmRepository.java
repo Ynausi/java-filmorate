@@ -128,4 +128,26 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
                         "ORDER BY likes_count DESC, f.id";
         return findMany(GET_COMMON_FILMS, userId, friendId);
     }
+
+    @Override
+    public Collection<Film> getRecommendations(int userId) {
+        final String GET_RECOMMENDATIONS =
+                "SELECT f.* " +
+                        "FROM Films f " +
+                        "JOIN Likes l ON f.id = l.filmId " +
+                        "WHERE l.userId = (" +
+                        "SELECT l2.userId " +
+                        "FROM Likes l1 " +
+                        "JOIN Likes l2 ON l1.filmId = l2.filmId " +
+                        "WHERE l1.userId = ? AND l2.userId <> ? " +
+                        "GROUP BY l2.userId " +
+                        "ORDER BY COUNT(*) DESC, l2.userId " +
+                        "LIMIT 1" +
+                        ") " +
+                        "AND f.id NOT IN (" +
+                        "SELECT filmId FROM Likes WHERE userId = ?" +
+                        ") " +
+                        "ORDER BY f.id";
+        return findMany(GET_RECOMMENDATIONS, userId, userId, userId);
+    }
 }
