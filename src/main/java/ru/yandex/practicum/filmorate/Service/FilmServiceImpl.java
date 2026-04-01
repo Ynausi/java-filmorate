@@ -9,16 +9,16 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.*;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
 import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmToDto;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -67,7 +67,7 @@ public class FilmServiceImpl implements FilmService {
                 if (genreRepository.findById(genre.getId()).isEmpty()) {
                     throw new NotFoundException("No such genre");
                 }
-                filmGenreRepository.addGenreToFilm(dto.getId(),genre.getId());
+                filmGenreRepository.addGenreToFilm(dto.getId(), genre.getId());
             }
             dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
         } else {
@@ -93,7 +93,7 @@ public class FilmServiceImpl implements FilmService {
             throw new ValidationException("id must be for update");
         }
         if (filmRepository.findById(film.getId()).isEmpty()) {
-           throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
+            throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
@@ -137,8 +137,45 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Collection<FilmResponse> getPopularFilms(int count) {
-        return filmRepository.getPopularFilms(count)
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
+    public Collection<FilmResponse> getPopularFilms(int count, Integer genreId, Integer year) {
+        if (year != null) {
+            if (year < 1895 || year > LocalDate.now().getYear() + 10) {
+                throw new ValidationException("Указан некорректный год для фильтрации: " + year);
+            }
+        }
+
+        if (genreId != null && genreRepository.findById(genreId).isEmpty()) {
+            throw new NotFoundException("Жанр с id " + genreId + " не найден.");
+        }
+
+        return filmRepository.getPopularFilms(count, genreId, year)
                 .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> search(String query, String by) {
+        Collection<Film> films;
+
+        boolean searchByTitle = by.contains("title");
+        boolean searchByDirector = by.contains("director");
+
+        if (searchByTitle && searchByDirector) {
+            films = filmRepository.searchByTitleAndDirector(query);
+        } else if (searchByDirector) {
+            films = filmRepository.searchByDirector(query);
+        } else if (searchByTitle) {
+            films = filmRepository.searchByTitle(query);
+        } else {
+            films = filmRepository.searchByTitle(query);
+        }
+
+        return films.stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
     }
@@ -213,6 +250,17 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + friendId + " не существует."));
 
         return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+
+        return filmRepository.getRecommendations(userId)
                 .stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());

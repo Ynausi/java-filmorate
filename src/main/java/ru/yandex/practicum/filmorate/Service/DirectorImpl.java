@@ -5,15 +5,13 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.Repository.DirectorRepository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class DirectorImpl implements DirectorService{
+public class DirectorImpl implements DirectorService {
     private final DirectorRepository directorRepository;
+
     @Override
     public Collection<Director> findAll() {
         return directorRepository.findAll();

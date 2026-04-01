@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.Repository.FriendshipRepository;
 import ru.yandex.practicum.filmorate.Repository.LikesRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.FriendStatus;
@@ -18,6 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final LikesRepository likesRepository;
+    private final FilmService filmService;
 
     public Collection<User> findAll() {
         return userRepository.findAll();
@@ -104,5 +106,10 @@ public class UserServiceImpl implements UserService {
         if (!deleted) {
             throw new InternalServerException("Не удалось удалить пользователя с id: " + userId);
         }
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        return filmService.getRecommendations(userId);
     }
 }

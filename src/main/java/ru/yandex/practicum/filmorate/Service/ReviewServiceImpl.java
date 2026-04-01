@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.Repository.ReviewRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +15,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
+
     @Override
     public Collection<Review> findAll() {
         return reviewRepository.getAll();
@@ -32,9 +30,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review save(Review review) {
         if (filmRepository.findById(review.getFilmId()).isEmpty()) {
-            throw new NotFoundException("No Film with filmId = "+ review.getFilmId());
+            throw new NotFoundException("No Film with filmId = " + review.getFilmId());
         }
-        if(userRepository.findById(review.getUserId()).isEmpty()) {
+        if (userRepository.findById(review.getUserId()).isEmpty()) {
             throw new NotFoundException("No User with userId = " + review.getUserId());
         }
         return reviewRepository.save(review);
@@ -43,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review update(Review review) {
         if (filmRepository.findById(review.getFilmId()).isEmpty()) {
-            throw new NotFoundException("No Film with filmId = "+ review.getFilmId());
+            throw new NotFoundException("No Film with filmId = " + review.getFilmId());
         }
         if (userRepository.findById(review.getUserId()).isEmpty()) {
             throw new NotFoundException("No User with userId = " + review.getUserId());
@@ -62,7 +60,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review addLikeOrDislike(int reviewId,int userId,String action ) {
+    public Review addLikeOrDislike(int reviewId,int userId,String action) {
         boolean isLike;
         if ("like".equals(action)) {
             isLike = true;
@@ -77,7 +75,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("No User with userId = " + userId);
         }
         if (isLike) {
-            reviewRepository.addLike(review.getReviewId(),review.getUserId(),1 );
+            reviewRepository.addLike(review.getReviewId(),review.getUserId(),1);
         } else {
             reviewRepository.addLike(review.getReviewId(), review.getUserId(), -1);
         }

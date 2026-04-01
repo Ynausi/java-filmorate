@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
-public class ReviewRepositoryImpl extends BaseRepository<Review> implements ReviewRepository{
+public class ReviewRepositoryImpl extends BaseRepository<Review> implements ReviewRepository {
     private static final String FIND_ALL_REVIEWS = "SELECT * FROM Reviews";
     private static final String FIND_BY_ID = "SELECT * FROM Reviews WHERE reviewId = ?";
     private static final String ADD_REVIEW = "INSERT INTO Reviews (content,isPositive,userId,filmId) " +
@@ -21,6 +21,10 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
     private static final String ADD_LIKE_TO_REVIEW = "merge into Review_Likes(reviewId,userId,useful) " +
                                                     " VALUES (?,?,?)";
     private static final String DELETE_LIKE_FROM_REVIEW = "DELETE FROM Review_Likes WHERE reviewID = ? AND userId = ?";
+    private static final String UPDATE_USEFUL = "UPDATE Reviews r SET useful = " +
+            "(SELECT COALESCE(SUM(rl.useful), 0) FROM Review_Likes rl WHERE rl.reviewId = r.reviewId) " +
+            " WHERE r.reviewId = ?";
+
     public ReviewRepositoryImpl(JdbcTemplate jdbc, RowMapper<Review> mapper) {
         super(jdbc, mapper);
     }
@@ -83,9 +87,6 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
 
     @Override
     public void updateUseful(int reviewId) {
-        String UPDATE_USEFUL = "UPDATE Reviews r SET useful = " +
-                "(SELECT COALESCE(SUM(rl.useful), 0) FROM Review_Likes rl WHERE rl.reviewId = r.reviewId) " +
-                            " WHERE r.reviewId = ?";
         update(UPDATE_USEFUL,reviewId);
     }
 }
