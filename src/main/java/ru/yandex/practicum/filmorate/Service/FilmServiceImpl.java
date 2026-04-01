@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -138,7 +139,22 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Collection<FilmResponse> getPopularFilms(int count) {
-        return filmRepository.getPopularFilms(count)
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
+    public Collection<FilmResponse> getPopularFilms(int count, Integer genreId, Integer year) {
+        if (year != null) {
+            if (year < 1895 || year > LocalDate.now().getYear() + 10) {
+                throw new ValidationException("Указан некорректный год для фильтрации: " + year);
+            }
+        }
+
+        if (genreId != null && genreRepository.findById(genreId).isEmpty()) {
+            throw new NotFoundException("Жанр с id " + genreId + " не найден.");
+        }
+
+        return filmRepository.getPopularFilms(count, genreId, year)
                 .stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());

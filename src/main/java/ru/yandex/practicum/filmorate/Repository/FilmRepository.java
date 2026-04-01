@@ -17,6 +17,8 @@ public interface FilmRepository {
 
     Collection<Film> getPopularFilms(int count);
 
+    Collection<Film> getPopularFilms(int count, Integer genreId, Integer year);
+
     Collection<Film> getDirectorFilmsByLikes(int directorId);
 
     Collection<Film> getDirectorFilmsByYear(int directorId);

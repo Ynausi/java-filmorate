@@ -62,17 +62,21 @@ public class InMemoryFilmRepository extends BaseRepository<Film> implements Film
 
     @Override
     public Collection<Film> getPopularFilms(int count) {
-        final String GET_POPULAR_FILMS =
-                "SELECT f.*,COALESCE(l.likes_count,0) AS likes_count " +
-                        "FROM Films f " +
-                        "LEFT JOIN (" +
-                        "SELECT filmId, COUNT(*) as likes_count " +
-                        "FROM Likes " +
-                        "GROUP BY filmId " +
-                        ") l ON f.id = l.filmId " +
-                        "ORDER BY likes_count DESC " +
-                        "LIMIT " + count;
-        return findMany(GET_POPULAR_FILMS);
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count, Integer genreId, Integer year) {
+        final String sql =
+                "SELECT f.* FROM Films f " +
+                        "LEFT JOIN (SELECT filmId, COUNT(*) as likes_count FROM Likes GROUP BY filmId) l ON f.id = l.filmId " +
+                        "LEFT JOIN Film_Genre fg ON f.id = fg.filmId " +
+                        "WHERE (? IS NULL OR fg.genreId = ?) " +
+                        "AND (? IS NULL OR EXTRACT(YEAR FROM f.releaseDate) = ?) " +
+                        "GROUP BY f.id " +
+                        "ORDER BY COALESCE(l.likes_count, 0) DESC " +
+                        "LIMIT ?";
+        return findMany(sql, genreId, genreId, year, year, count);
     }
 
     @Override
