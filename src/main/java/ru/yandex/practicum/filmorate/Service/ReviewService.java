@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.Service;
 
 import ru.yandex.practicum.filmorate.model.Review;
+
 import java.util.Collection;
 
 public interface ReviewService {
@@ -15,9 +16,9 @@ public interface ReviewService {
 
     boolean delete(int reviewId);
 
-    Collection<Review> getReviewsForFilm(int filmId,int count);
+    Collection<Review> getReviewsForFilm(int filmId, int count);
 
-    Review addLikeOrDislike(int reviewId,int userId,String action);
+    Review addLikeOrDislike(int reviewId, int userId, String action);
 
-    Review deleteLikeOrDislike(int reviewId,int userId);
+    Review deleteLikeOrDislike(int reviewId, int userId);
 }
