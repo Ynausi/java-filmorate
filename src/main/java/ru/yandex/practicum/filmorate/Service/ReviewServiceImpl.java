@@ -54,15 +54,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review update(Review review) {
-        if (filmRepository.findById(review.getFilmId()).isEmpty()) {
-            throw new NotFoundException("No Film with filmId = " + review.getFilmId());
-        }
-        if (userRepository.findById(review.getUserId()).isEmpty()) {
-            throw new NotFoundException("No User with userId = " + review.getUserId());
-        }
+        Review existing = reviewRepository.findById(review.getReviewId())
+                .orElseThrow(() -> new NotFoundException("No Review with reviewId = " + review.getReviewId()));
 
-        Review updated = reviewRepository.update(review).orElseThrow(() ->
-                new NotFoundException("No Review with reviewId = " + review.getReviewId()));
+        existing.setContent(review.getContent());
+        existing.setIsPositive(review.getIsPositive());
+
+        Review updated = reviewRepository.update(existing)
+                .orElseThrow(() -> new NotFoundException("No Review with reviewId = " + review.getReviewId()));
 
         eventService.addEvent(
                 updated.getUserId(),
@@ -81,6 +80,10 @@ public class ReviewServiceImpl implements ReviewService {
 
         boolean deleted = reviewRepository.delete(reviewId);
 
+        if (!deleted) {
+            throw new NotFoundException("No review with reviewId = " + reviewId);
+        }
+
         eventService.addEvent(
                 review.getUserId(),
                 EventType.REVIEW,
@@ -88,7 +91,7 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewId
         );
 
-        return deleted;
+        return true;
     }
 
     @Override
@@ -98,48 +101,38 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review addLikeOrDislike(int reviewId, int userId, String action) {
-        boolean isLike;
+        if (reviewRepository.findById(reviewId).isEmpty()) {
+            throw new NotFoundException("No Review with reviewId = " + reviewId);
+        }
+
+        if (userRepository.findById(userId).isEmpty()) {
+            throw new NotFoundException("No User with userId = " + userId);
+        }
+
         if ("like".equals(action)) {
-            isLike = true;
+            reviewRepository.addLike(reviewId, userId, 1);
         } else if ("dislike".equals(action)) {
-            isLike = false;
+            reviewRepository.addLike(reviewId, userId, -1);
         } else {
             throw new IllegalArgumentException("Unknown action: " + action);
         }
 
-        Review review = reviewRepository.findById(reviewId).orElseThrow(
+        return reviewRepository.findById(reviewId).orElseThrow(
                 () -> new NotFoundException("No Review with reviewId = " + reviewId));
-
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new NotFoundException("No User with userId = " + userId);
-        }
-
-        if (isLike) {
-            reviewRepository.addLike(review.getReviewId(), userId, 1);
-        } else {
-            reviewRepository.addLike(review.getReviewId(), userId, -1);
-        }
-
-        Review updated = reviewRepository.update(review).orElseThrow(() ->
-                new NotFoundException("No Review with reviewId = " + review.getReviewId()));
-
-        return updated;
     }
 
     @Override
     public Review deleteLikeOrDislike(int reviewId, int userId) {
-        Review review = reviewRepository.findById(reviewId).orElseThrow(
+        reviewRepository.findById(reviewId).orElseThrow(
                 () -> new NotFoundException("No Review with reviewId = " + reviewId));
 
         if (userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("No User with userId = " + userId);
         }
 
-        reviewRepository.deleteLike(review.getReviewId(), userId);
+        reviewRepository.deleteLike(reviewId, userId);
 
-        Review updated = reviewRepository.update(review).orElseThrow(
-                () -> new NotFoundException("No Review with reviewId = " + review.getReviewId()));
-
-        return updated;
+        return reviewRepository.findById(reviewId).orElseThrow(
+                () -> new NotFoundException("No Review with reviewId = " + reviewId));
     }
 }

@@ -44,13 +44,14 @@ public class DirectorController {
     @Loggable(value = "Изменение данных режиссёра", level = LogLevel.INFO)
     @PutMapping
     public ResponseEntity<Director> updateDirector(@Valid @RequestBody Director director) {
-         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                 .body(directorService.update(director));
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(directorService.update(director));
     }
 
     @Loggable(value = "Удаление режиссёра", level = LogLevel.INFO)
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDirector(@PathVariable("id") int id) {
+    public ResponseEntity<Void> deleteDirector(@PathVariable("id") int id) {
+        directorService.delete(id);
         return ResponseEntity.ok()
                 .build();
     }
