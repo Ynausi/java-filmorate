@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.MediaType;
@@ -35,7 +34,7 @@ public class DirectorController {
 
     @Loggable(value = "Добавление режиссёра", level = LogLevel.INFO)
     @PostMapping
-    public ResponseEntity<Director> createDirector(@Valid @RequestBody Director director) {
+    public ResponseEntity<Director> createDirector(@RequestBody Director director) {
         Director created = directorService.save(director);
         return ResponseEntity.created(URI.create("/directors/" + created.getId()))
                 .body(created);
@@ -43,14 +42,15 @@ public class DirectorController {
 
     @Loggable(value = "Изменение данных режиссёра", level = LogLevel.INFO)
     @PutMapping
-    public ResponseEntity<Director> updateDirector(@Valid @RequestBody Director director) {
-         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                 .body(directorService.update(director));
+    public ResponseEntity<Director> updateDirector(@RequestBody Director director) {
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(directorService.update(director));
     }
 
     @Loggable(value = "Удаление режиссёра", level = LogLevel.INFO)
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDirector(@PathVariable("id") int id) {
+    public ResponseEntity<Void> deleteDirector(@PathVariable("id") int id) {
+        directorService.delete(id);
         return ResponseEntity.ok()
                 .build();
     }
