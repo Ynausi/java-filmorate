@@ -47,9 +47,7 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
     public Review save(Review review) {
         int id = insertAndReturnId(ADD_REVIEW,
                 review.getContent(),
-                review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId()
+                review.getIsPositive()
         );
         review.setReviewId(id);
         return review;
