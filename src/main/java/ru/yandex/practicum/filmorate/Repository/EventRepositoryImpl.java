@@ -23,15 +23,11 @@ public class EventRepositoryImpl extends BaseRepository<Event> implements EventR
     @Override
     public void addEvent(int userId, EventType eventType, Operation operation, int entityId) {
         long timestamp = System.currentTimeMillis();
-        log.debug("Adding event: userId={}, eventType={}, operation={}, entityId={}, timestamp={}",
-                userId, eventType, operation, entityId, timestamp);
-
         update(ADD_EVENT, userId, eventType.name(), operation.name(), entityId, timestamp);
     }
 
     @Override
     public List<Event> getUserEvents(int userId) {
-        log.debug("Getting events for user: {}", userId);
         return findMany(GET_USER_EVENTS, userId).stream().toList();
     }
 }
