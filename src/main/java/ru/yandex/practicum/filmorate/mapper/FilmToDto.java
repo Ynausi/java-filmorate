@@ -15,7 +15,7 @@ public class FilmToDto {
     private final GenreRepository genreRepository;
     private final DirectorRepository directorRepository;
 
-    @Loggable(value = "Пребразование FilmToDto",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование FilmToDto", level = LogLevel.DEBUG)
     public FilmDto toData(Film film) {
         FilmDto dto = new FilmDto();
         dto.setId(film.getId());

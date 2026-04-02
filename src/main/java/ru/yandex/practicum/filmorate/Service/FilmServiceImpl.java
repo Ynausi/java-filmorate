@@ -7,17 +7,15 @@ import ru.yandex.practicum.filmorate.Repository.*;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.*;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
 import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmToDto;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -39,6 +37,7 @@ public class FilmServiceImpl implements FilmService {
     private final RatingRepository ratingRepository;
     private final DirectorRepository directorRepository;
     private final FilmDirectorsRepository filmDirectorsRepository;
+    private final EventService eventService; // Добавляем EventService
 
     @Override
     public Collection<FilmResponse> findAll() {
@@ -69,7 +68,6 @@ public class FilmServiceImpl implements FilmService {
                 filmGenreRepository.addGenreToFilm(dto.getId(), genre.getId());
             }
             dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-            System.out.println(dto.getGenres());
         } else {
             dto.setGenres(Collections.emptySet());
         }
@@ -78,10 +76,9 @@ public class FilmServiceImpl implements FilmService {
                 if (directorRepository.findById(director.getId()).isEmpty()) {
                     throw new NotFoundException("No such director");
                 }
-                filmDirectorsRepository.addDirectorToFilm(dto.getId(),director.getId());
+                filmDirectorsRepository.addDirectorToFilm(dto.getId(), director.getId());
             }
             dto.setDirectors(directorRepository.findAllDirectorsForFilm(dto.getId()));
-            System.out.println(dto.getDirectors());
         } else {
             dto.setDirectors(Collections.emptySet());
         }
@@ -98,7 +95,7 @@ public class FilmServiceImpl implements FilmService {
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
-        updateDirectors(dto.getId(),dto.getDirectors());
+        updateDirectors(dto.getId(), dto.getDirectors());
         Film forUpdate = filmDtoToData.toData(dto);
         Film update = filmRepository.update(forUpdate);
         return buildFilmResponse(forUpdate);
@@ -121,6 +118,9 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
         likesRepository.addLikeToFilm(userId, filmId);
+
+        eventService.addEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+
         return film;
     }
 
@@ -133,13 +133,53 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
         likesRepository.deleteLikeFromFilm(filmId, userId);
+
+        eventService.addEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
+
         return film;
     }
 
     @Override
     public Collection<FilmResponse> getPopularFilms(int count) {
-        return filmRepository.getPopularFilms(count)
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
+    public Collection<FilmResponse> getPopularFilms(int count, Integer genreId, Integer year) {
+        if (year != null) {
+            if (year < 1895 || year > LocalDate.now().getYear() + 10) {
+                throw new ValidationException("Указан некорректный год для фильтрации: " + year);
+            }
+        }
+
+        if (genreId != null && genreRepository.findById(genreId).isEmpty()) {
+            throw new NotFoundException("Жанр с id " + genreId + " не найден.");
+        }
+
+        return filmRepository.getPopularFilms(count, genreId, year)
                 .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> search(String query, String by) {
+        Collection<Film> films;
+
+        boolean searchByTitle = by.contains("title");
+        boolean searchByDirector = by.contains("director");
+
+        if (searchByTitle && searchByDirector) {
+            films = filmRepository.searchByTitleAndDirector(query);
+        } else if (searchByDirector) {
+            films = filmRepository.searchByDirector(query);
+        } else if (searchByTitle) {
+            films = filmRepository.searchByTitle(query);
+        } else {
+            films = filmRepository.searchByTitle(query);
+        }
+
+        return films.stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
     }
@@ -148,8 +188,8 @@ public class FilmServiceImpl implements FilmService {
     public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
         if (sortBy.equals("likes")) {
             return filmRepository.getDirectorFilmsByLikes(directorId).stream()
-                .map(this::buildFilmResponse)
-                .collect(Collectors.toList());
+                    .map(this::buildFilmResponse)
+                    .collect(Collectors.toList());
         } else if (sortBy.equals("year")) {
             return filmRepository.getDirectorFilmsByYear(directorId).stream()
                     .map(this::buildFilmResponse)
@@ -159,7 +199,6 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-    //Преобразование из Film в FilmResponse чтобы убрать повторения
     private FilmResponse buildFilmResponse(Film film) {
         FilmDto dto = filmToDto.toData(film);
         dto.setMpa(
@@ -187,11 +226,25 @@ public class FilmServiceImpl implements FilmService {
             if (directorRepository.findById(director.getId()).isEmpty()) {
                 throw new NotFoundException("No such director");
             }
-            filmDirectorsRepository.addDirectorToFilm(filmdId,director.getId());
+            filmDirectorsRepository.addDirectorToFilm(filmdId, director.getId());
         }
     }
-}
+
     @Override
+    public void delete(int filmId) {
+        if (filmRepository.findById(filmId).isEmpty()) {
+            throw new NotFoundException("Фильма с id: " + filmId + " не существует");
+        }
+
+        likesRepository.deleteAllLikesForFilm(filmId);
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+
+        boolean deleted = filmRepository.delete(filmId);
+        if (!deleted) {
+            throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
+        }
+    }
+
     public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
@@ -199,6 +252,17 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + friendId + " не существует."));
 
         return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+
+        return filmRepository.getRecommendations(userId)
                 .stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());

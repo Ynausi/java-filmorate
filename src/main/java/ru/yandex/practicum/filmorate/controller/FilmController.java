@@ -28,7 +28,6 @@ public class FilmController {
                 .body(filmService.findAll());
     }
 
-
     @Loggable(value = "Получение фильма", level = LogLevel.INFO)
     @GetMapping("/{id}")
     public FilmResponse getById(@PathVariable("id") int filmId) {
@@ -38,8 +37,10 @@ public class FilmController {
     @Loggable(value = "Получить список популярных фильмов", level = LogLevel.INFO)
     @GetMapping("/popular")
     public ResponseEntity<Collection<FilmResponse>> getPopularFilms(
-            @RequestParam(name = "count", defaultValue = "10") int count) {
-        return ResponseEntity.ok(filmService.getPopularFilms(count));
+            @RequestParam(name = "count", defaultValue = "10") int count,
+            @RequestParam(name = "genreId", required = false) Integer genreId,
+            @RequestParam(name = "year", required = false) Integer year) {
+        return ResponseEntity.ok(filmService.getPopularFilms(count, genreId, year));
     }
 
     @Loggable(value = "Добавление фильма", level = LogLevel.INFO)
@@ -70,12 +71,19 @@ public class FilmController {
         return ResponseEntity.ok(filmService.deleteLikeFromFilm(filmId, userId));
     }
 
-    @Loggable(value = "Получить список фильмов по лайкам или году",level = LogLevel.INFO)
+    @Loggable(value = "Получить список фильмов по лайкам или году", level = LogLevel.INFO)
     @GetMapping("/director/{directorId}")
     public ResponseEntity<Collection<FilmResponse>> getDirectorFilmsSortedByYearOrLikes(
             @PathVariable("directorId") int directorId,
             @RequestParam(name = "sortBy") String sortBy) {
         return ResponseEntity.ok(filmService.getDirectorFilmsByLikesOrYear(directorId, sortBy));
+    }
+
+    @Loggable(value = "Удаление фильма по id", level = LogLevel.INFO)
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Void> deleteFilm(@PathVariable("filmId") int filmId) {
+        filmService.delete(filmId);
+        return ResponseEntity.noContent().build(); // HTTP 204 No Content
     }
 
     @Loggable(value = "Получить список общих фильмов с сортировкой по популярности", level = LogLevel.INFO)
@@ -84,5 +92,13 @@ public class FilmController {
             @RequestParam("userId") int userId,
             @RequestParam("friendId") int friendId) {
         return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
+    }
+
+    @Loggable(value = "Поиск фильмов", level = LogLevel.INFO)
+    @GetMapping("/search")
+    public ResponseEntity<Collection<FilmResponse>> search(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "by") String by) {
+        return ResponseEntity.ok(filmService.search(query, by));
     }
 }

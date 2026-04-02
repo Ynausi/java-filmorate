@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 @Component
 public class FilmDtoToData {
-    @Loggable(value = "Пребразование FilmDtoToData",level = LogLevel.DEBUG)
+    @Loggable(value = "Пребразование FilmDtoToData", level = LogLevel.DEBUG)
     public Film toData(FilmDto dto) {
         Film film = new Film();
         if (dto.getId() != null) {

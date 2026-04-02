@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
+
 import java.util.*;
 
 @Repository
@@ -14,10 +15,10 @@ public class GenreRepositoryImpl extends BaseRepository<Genre> implements GenreR
                     "WHERE fg.filmId = ? " +
                     "ORDER BY g.id";
     private static final String FIND_ALL_GENRES = "SELECT * FROM Genre AS g " +
-                                                    "ORDER BY g.id";
+            "ORDER BY g.id";
     private static final String FIND_BY_ID = "SELECT * FROM Genre AS g " +
-                                             "WHERE id = ? " +
-                                             "ORDER BY g.id";
+            "WHERE id = ? " +
+            "ORDER BY g.id";
 
     public GenreRepositoryImpl(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
@@ -25,7 +26,7 @@ public class GenreRepositoryImpl extends BaseRepository<Genre> implements GenreR
 
     @Override
     public Optional<Genre> findById(int id) {
-        return findOne(FIND_BY_ID,id);
+        return findOne(FIND_BY_ID, id);
     }
 
     @Override
@@ -37,6 +38,4 @@ public class GenreRepositoryImpl extends BaseRepository<Genre> implements GenreR
     public Set<Genre> findAllGenres() {
         return new LinkedHashSet<>(findMany(FIND_ALL_GENRES));
     }
-
-
 }
