@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Data
 @AllArgsConstructor
@@ -13,11 +13,11 @@ public class Review {
     private Integer reviewId;
     @NotBlank
     private String content;
-    @NonNull
+    @NotNull
     private Boolean isPositive;
-    @NonNull
+    @NotNull
     private Integer userId;
-    @NonNull
+    @NotNull
     private Integer filmId;
     private Integer useful;
 }

@@ -51,8 +51,9 @@ public class ReviewController {
     @Loggable(value = "Удаление отзыва", level = LogLevel.INFO)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable("id") int id) {
+        reviewService.delete(id);
         return ResponseEntity.ok()
-                .body(reviewService.delete(id));
+                .build();
     }
 
     @Loggable(value = "Получение отзывов для фильма", level = LogLevel.INFO)
@@ -79,7 +80,6 @@ public class ReviewController {
     public ResponseEntity<Review> deleteLikeToReview(@PathVariable("id") int reviewId,
                                                      @PathVariable("action") String action,
                                                      @PathVariable("userId") int userId) {
-        boolean isLike;
         if (!"like".equals(action) && !"dislike".equals(action)) {
             throw new IllegalArgumentException("Unknown action: " + action);
         }
