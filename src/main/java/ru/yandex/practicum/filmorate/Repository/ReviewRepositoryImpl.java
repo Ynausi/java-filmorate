@@ -10,15 +10,18 @@ import java.util.Optional;
 
 @Repository
 public class ReviewRepositoryImpl extends BaseRepository<Review> implements ReviewRepository {
-    private static final String FIND_ALL_REVIEWS = "SELECT * FROM Reviews";
+    private static final String FIND_ALL_REVIEWS = "SELECT * FROM Reviews ORDER BY useful DESC, reviewId ASC";
     private static final String FIND_BY_ID = "SELECT * FROM Reviews WHERE reviewId = ?";
     private static final String ADD_REVIEW = "INSERT INTO Reviews (content,isPositive,userId,filmId) " +
             "VALUES (?,?,?,?)";
     private static final String UPDATE_REVIEW = "UPDATE Reviews SET " +
-            "content = ?, isPositive = ?, userId = ?, filmId = ? " +
+            "content = ?, isPositive = ? " +
             "WHERE reviewId = ?";
     private static final String DELETE_REVIEW = "DELETE FROM Reviews WHERE reviewId = ?";
-    private static final String FIND_REVIEWS_FOR_FILM = "SELECT * FROM Reviews WHERE filmId = ? LIMIT ?";
+    private static final String DELETE_REVIEW_LIKES =
+            "DELETE FROM Review_Likes WHERE reviewId = ?";
+    private static final String FIND_REVIEWS_FOR_FILM = "SELECT * FROM Reviews WHERE filmId = ? ORDER BY useful DESC, " +
+            "reviewId ASC LIMIT ?";
     private static final String ADD_LIKE_TO_REVIEW = "merge into Review_Likes(reviewId,userId,useful) " +
             " VALUES (?,?,?)";
     private static final String DELETE_LIKE_FROM_REVIEW = "DELETE FROM Review_Likes WHERE reviewID = ? AND userId = ?";
@@ -44,9 +47,7 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
     public Review save(Review review) {
         int id = insertAndReturnId(ADD_REVIEW,
                 review.getContent(),
-                review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId()
+                review.getIsPositive()
         );
         review.setReviewId(id);
         return review;
@@ -57,8 +58,6 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
         update(UPDATE_REVIEW,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId(),
                 review.getReviewId()
         );
         return findById(review.getReviewId());
@@ -66,6 +65,7 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
 
     @Override
     public boolean delete(int reviewId) {
+        jdbc.update(DELETE_REVIEW_LIKES, reviewId);
         return delete(DELETE_REVIEW, reviewId);
     }
 
@@ -82,7 +82,7 @@ public class ReviewRepositoryImpl extends BaseRepository<Review> implements Revi
 
     @Override
     public void deleteLike(int reviewId, int userId) {
-        update(DELETE_LIKE_FROM_REVIEW, reviewId, userId);
+        jdbc.update(DELETE_LIKE_FROM_REVIEW, reviewId, userId);
         updateUseful(reviewId);
     }
 
