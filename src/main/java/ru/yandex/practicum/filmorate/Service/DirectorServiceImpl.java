@@ -41,6 +41,10 @@ public class DirectorServiceImpl implements DirectorService {
         if (directorRepository.findById(directorId).isEmpty()) {
             throw new NotFoundException("No director with id: " + directorId);
         }
-        return directorRepository.delete(directorId);
+        boolean deleted = directorRepository.delete(directorId);
+        if (!deleted) {
+            throw new NotFoundException("No director with id: " + directorId);
+        }
+        return true;
     }
 }
