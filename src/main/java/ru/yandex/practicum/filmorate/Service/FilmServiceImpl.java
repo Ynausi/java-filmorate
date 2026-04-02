@@ -95,6 +95,7 @@ public class FilmServiceImpl implements FilmService {
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
+        updateGenres(dto.getId(), dto.getGenres());
         updateDirectors(dto.getId(), dto.getDirectors());
         Film forUpdate = filmDtoToData.toData(dto);
         Film update = filmRepository.update(forUpdate);
@@ -186,6 +187,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
+        if (directorRepository.findById(directorId).isEmpty()) {
+            throw new NotFoundException("No director with id = " + directorId);
+        }
         if (sortBy.equals("likes")) {
             return filmRepository.getDirectorFilmsByLikes(directorId).stream()
                     .map(this::buildFilmResponse)
@@ -227,6 +231,19 @@ public class FilmServiceImpl implements FilmService {
                 throw new NotFoundException("No such director");
             }
             filmDirectorsRepository.addDirectorToFilm(filmdId, director.getId());
+        }
+    }
+
+    private void updateGenres(int filmId, Set<Genre> genres) {
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+        if (genres == null || genres.isEmpty()) {
+            return;
+        }
+        for (Genre genre : genres) {
+            if (genreRepository.findById(genre.getId()).isEmpty()) {
+                throw new NotFoundException("No such genre");
+            }
+            filmGenreRepository.addGenreToFilm(filmId, genre.getId());
         }
     }
 
