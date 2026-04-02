@@ -17,7 +17,7 @@ public interface ReviewRepository {
 
     boolean delete(int reviewId);
 
-    Collection<Review> getReviewsForFilm(int filmId,int count);
+    Collection<Review> getReviewsForFilm(int filmId, int count);
 
     void addLike(int reviewId, int userId, int useful);
 
