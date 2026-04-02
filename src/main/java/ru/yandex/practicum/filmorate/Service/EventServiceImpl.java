@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.Repository.EventRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
 import ru.yandex.practicum.filmorate.dto.EventResponse;
@@ -22,19 +24,17 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
 
     @Override
+    @Loggable(value = "Adding event", level = LogLevel.DEBUG)
     public void addEvent(int userId, EventType eventType, Operation operation, int entityId) {
-        log.info("Adding event: userId={}, eventType={}, operation={}, entityId={}",
-                userId, eventType, operation, entityId);
         eventRepository.addEvent(userId, eventType, operation, entityId);
     }
 
     @Override
+    @Loggable(value = "Getting events for user", level = LogLevel.DEBUG)
     public List<EventResponse> getUserEvents(int userId) {
         if (userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("Пользователя с id: " + userId + " не существует");
         }
-
-        log.info("Getting events for user: {}", userId);
         return eventRepository.getUserEvents(userId).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
