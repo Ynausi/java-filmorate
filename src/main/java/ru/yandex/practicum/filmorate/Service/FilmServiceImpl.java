@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
 import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmToDto;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -40,6 +37,7 @@ public class FilmServiceImpl implements FilmService {
     private final RatingRepository ratingRepository;
     private final DirectorRepository directorRepository;
     private final FilmDirectorsRepository filmDirectorsRepository;
+    private final EventService eventService; // Добавляем EventService
 
     @Override
     public Collection<FilmResponse> findAll() {
@@ -120,6 +118,9 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
         likesRepository.addLikeToFilm(userId, filmId);
+
+        eventService.addEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+
         return film;
     }
 
@@ -132,6 +133,9 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
         likesRepository.deleteLikeFromFilm(filmId, userId);
+
+        eventService.addEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
+
         return film;
     }
 
@@ -195,7 +199,6 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-    //Преобразование из Film в FilmResponse чтобы убрать повторения
     private FilmResponse buildFilmResponse(Film film) {
         FilmDto dto = filmToDto.toData(film);
         dto.setMpa(
@@ -234,7 +237,6 @@ public class FilmServiceImpl implements FilmService {
         }
 
         likesRepository.deleteAllLikesForFilm(filmId);
-
         filmGenreRepository.deleteAllGenresForFilm(filmId);
 
         boolean deleted = filmRepository.delete(filmId);

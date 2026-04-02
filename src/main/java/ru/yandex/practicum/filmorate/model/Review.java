@@ -20,5 +20,4 @@ public class Review {
     @NonNull
     private Integer filmId;
     private Integer useful;
-
 }
