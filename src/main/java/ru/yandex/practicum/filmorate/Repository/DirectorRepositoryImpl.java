@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.*;
 
 @Repository
-public class DirectorRepositoryImpl extends BaseRepository implements DirectorRepository {
+public class DirectorRepositoryImpl extends BaseRepository<Director> implements DirectorRepository {
     private static final String FIND_ALL_DIRECTORS = "SELECT * FROM Directors";
     private static final String FIND_BY_ID = "SELECT * FROM Directors WHERE id = ?";
     private static final String ADD_DIRECTOR = "INSERT INTO Directors (name) VALUES (?)";
@@ -63,7 +63,7 @@ public class DirectorRepositoryImpl extends BaseRepository implements DirectorRe
 
     @Override
     public boolean delete(int directorId) {
-        update(DELETE_FILM_DIRECTORS_BY_DIRECTOR,directorId);
+        jdbc.update(DELETE_FILM_DIRECTORS_BY_DIRECTOR, directorId);
         return delete(DELETE_DIRECTOR,
                 directorId
         );
