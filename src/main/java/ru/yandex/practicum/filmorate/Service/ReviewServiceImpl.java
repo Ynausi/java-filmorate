@@ -109,19 +109,12 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("No User with userId = " + userId);
         }
 
-        boolean isLike;
         if ("like".equals(action)) {
-            isLike = true;
+            reviewRepository.addLike(reviewId, userId, 1);
         } else if ("dislike".equals(action)) {
-            isLike = false;
+            reviewRepository.addLike(reviewId, userId, -1);
         } else {
             throw new IllegalArgumentException("Unknown action: " + action);
-        }
-
-        if (isLike) {
-            reviewRepository.addLike(reviewId, userId, 1);
-        } else {
-            reviewRepository.addLike(reviewId, userId, -1);
         }
 
         return reviewRepository.findById(reviewId).orElseThrow(
