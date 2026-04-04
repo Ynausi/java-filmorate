@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public class MinDateValidator implements ConstraintValidator<MinDate, LocalDate> {
 
-    private final LocalDate minDate = LocalDate.of(1895,12,28);
+    private final LocalDate minDate = LocalDate.of(1895, 12, 28);
 
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {

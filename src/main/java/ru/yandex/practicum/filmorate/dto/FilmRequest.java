@@ -5,8 +5,10 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.MyAnnotations.MinDate;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +24,7 @@ public class FilmRequest {
     private LocalDate releaseDate;
     @PositiveOrZero
     private Integer duration;
+    private Set<Director> directors = new HashSet<>();
     private Set<Genre> genres = new HashSet<>();
     private Rating mpa;
 }

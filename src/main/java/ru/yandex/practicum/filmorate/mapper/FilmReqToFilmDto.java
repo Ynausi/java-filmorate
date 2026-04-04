@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.Repository.RatingRepository;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
@@ -11,6 +13,7 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 public class FilmReqToFilmDto {
     private final RatingRepository ratingRepository;
 
+    @Loggable(value = "Пребразование FilmReqToFilmDto", level = LogLevel.DEBUG)
     public FilmDto toDto(FilmRequest filmRequest) {
         FilmDto dto = new FilmDto();
         dto.setName(filmRequest.getName());
@@ -24,8 +27,8 @@ public class FilmReqToFilmDto {
             dto.setRatingId(null);
             dto.setMpa(null);
         }
+        dto.setDirectors(filmRequest.getDirectors());
         dto.setGenres(filmRequest.getGenres());
         return dto;
     }
 }
-

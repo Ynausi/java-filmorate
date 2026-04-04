@@ -7,13 +7,18 @@ import ru.yandex.practicum.filmorate.Repository.*;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.*;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
+import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
+import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
+import ru.yandex.practicum.filmorate.mapper.FilmToDto;
+import ru.yandex.practicum.filmorate.model.*;
+
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -30,20 +35,14 @@ public class FilmServiceImpl implements FilmService {
     private final FilmDtoToResp filmDtoToResp;
     private final FilmToDto filmToDto;
     private final RatingRepository ratingRepository;
+    private final DirectorRepository directorRepository;
+    private final FilmDirectorsRepository filmDirectorsRepository;
+    private final EventService eventService; // Добавляем EventService
 
     @Override
     public Collection<FilmResponse> findAll() {
         return filmRepository.findAll().stream()
-                .map(film -> {
-                    FilmDto dto = filmToDto.toData(film);
-                    dto.setMpa(
-                            dto.getRatingId() != null
-                                    ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                                    : null
-                    );
-                    dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-                    return filmDtoToResp.toResp(dto);
-                })
+                .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
     }
 
@@ -66,12 +65,22 @@ public class FilmServiceImpl implements FilmService {
                 if (genreRepository.findById(genre.getId()).isEmpty()) {
                     throw new NotFoundException("No such genre");
                 }
-                filmGenreRepository.addGenreToFilm(dto.getId(),genre.getId());
+                filmGenreRepository.addGenreToFilm(dto.getId(), genre.getId());
             }
             dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-            System.out.println(dto.getGenres());
         } else {
             dto.setGenres(Collections.emptySet());
+        }
+        if (dto.getDirectors() != null && !dto.getDirectors().isEmpty()) {
+            for (Director director : dto.getDirectors()) {
+                if (directorRepository.findById(director.getId()).isEmpty()) {
+                    throw new NotFoundException("No such director");
+                }
+                filmDirectorsRepository.addDirectorToFilm(dto.getId(), director.getId());
+            }
+            dto.setDirectors(directorRepository.findAllDirectorsForFilm(dto.getId()));
+        } else {
+            dto.setDirectors(Collections.emptySet());
         }
         return filmDtoToResp.toResp(dto);
     }
@@ -82,16 +91,15 @@ public class FilmServiceImpl implements FilmService {
             throw new ValidationException("id must be for update");
         }
         if (filmRepository.findById(film.getId()).isEmpty()) {
-           throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
+            throw new NotFoundException("Фильма с id: " + film.getId() + "не существует");
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
+        updateGenres(dto.getId(), dto.getGenres());
+        updateDirectors(dto.getId(), dto.getDirectors());
         Film forUpdate = filmDtoToData.toData(dto);
         Film update = filmRepository.update(forUpdate);
-        dto.setMpa(dto.getRatingId() != null
-                ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                : null);
-        return filmDtoToResp.toResp(dto);
+        return buildFilmResponse(forUpdate);
     }
 
     @Override
@@ -99,23 +107,22 @@ public class FilmServiceImpl implements FilmService {
         Film film = filmRepository.findById(id)
                 .orElseThrow(() ->
                         new NotFoundException("Фильма с id: " + id + "не существует"));
-        FilmDto dto = filmToDto.toData(film);
-        dto.setMpa(dto.getRatingId() != null
-                ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                : null);
-        dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-        return filmDtoToResp.toResp(dto);
+        return buildFilmResponse(film);
     }
 
     @Override
     public Film addLikeToFilm(int filmId, int userId) {
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() ->
-                        new NotFoundException("Фильма с id: " + filmId + "не существует"));
+                        new NotFoundException("Фильма с id: " + filmId + " не существует"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        likesRepository.addLikeToFilm(userId,filmId);
+
+        if (!likesRepository.isLikeExist(userId, filmId)) {
+            likesRepository.addLikeToFilm(filmId, userId);
+        }
+        eventService.addEvent(userId, EventType.LIKE, Operation.ADD, filmId);
         return film;
     }
 
@@ -127,24 +134,155 @@ public class FilmServiceImpl implements FilmService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        likesRepository.deleteLikeFromFilm(filmId,userId);
+        if (likesRepository.isLikeExist(userId, filmId)) {
+            likesRepository.deleteLikeFromFilm(filmId, userId);
+        }
+        eventService.addEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
         return film;
     }
 
     @Override
     public Collection<FilmResponse> getPopularFilms(int count) {
-        return filmRepository.getPopularFilms(count)
+        return getPopularFilms(count, null, null);
+    }
+
+    @Override
+    public Collection<FilmResponse> getPopularFilms(int count, Integer genreId, Integer year) {
+        if (year != null) {
+            if (year < 1895 || year > LocalDate.now().getYear() + 10) {
+                throw new ValidationException("Указан некорректный год для фильтрации: " + year);
+            }
+        }
+
+        if (genreId != null && genreRepository.findById(genreId).isEmpty()) {
+            throw new NotFoundException("Жанр с id " + genreId + " не найден.");
+        }
+
+        return filmRepository.getPopularFilms(count, genreId, year)
                 .stream()
-                .map(film -> {
-                    FilmDto dto = filmToDto.toData(film);
-                    dto.setMpa(
-                            dto.getRatingId() != null
-                                    ? ratingRepository.findById(dto.getRatingId()).orElse(null)
-                                    : null
-                    );
-                    return filmDtoToResp.toResp(dto);
-                })
+                .map(this::buildFilmResponse)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Collection<FilmResponse> search(String query, String by) {
+        Collection<Film> films;
+
+        boolean searchByTitle = by.contains("title");
+        boolean searchByDirector = by.contains("director");
+
+        if (searchByTitle && searchByDirector) {
+            films = filmRepository.searchByTitleAndDirector(query);
+        } else if (searchByDirector) {
+            films = filmRepository.searchByDirector(query);
+        } else if (searchByTitle) {
+            films = filmRepository.searchByTitle(query);
+        } else {
+            films = filmRepository.searchByTitle(query);
+        }
+
+        return films.stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
+        if (directorRepository.findById(directorId).isEmpty()) {
+            throw new NotFoundException("No director with id = " + directorId);
+        }
+        if (sortBy.equals("likes")) {
+            return filmRepository.getDirectorFilmsByLikes(directorId).stream()
+                    .map(this::buildFilmResponse)
+                    .collect(Collectors.toList());
+        } else if (sortBy.equals("year")) {
+            return filmRepository.getDirectorFilmsByYear(directorId).stream()
+                    .map(this::buildFilmResponse)
+                    .collect(Collectors.toList());
+        } else {
+            throw new IllegalArgumentException("sortBy должно быть либо year либо like");
+        }
+    }
+
+    private FilmResponse buildFilmResponse(Film film) {
+        FilmDto dto = filmToDto.toData(film);
+        dto.setMpa(
+                dto.getRatingId() != null
+                        ? ratingRepository.findById(dto.getRatingId()).orElse(null)
+                        : null
+        );
+
+        if (dto.getId() != null) {
+            dto.setDirectors(directorRepository.findAllDirectorsForFilm(dto.getId()));
+        }
+
+        if (dto.getId() != null) {
+            dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
+        }
+        return filmDtoToResp.toResp(dto);
+    }
+
+    private void updateDirectors(int filmdId, Set<Director> directors) {
+        filmDirectorsRepository.deleteDirectorsFromFilm(filmdId);
+        if (directors == null || directors.isEmpty()) {
+            return;
+        }
+        for (Director director : directors) {
+            if (directorRepository.findById(director.getId()).isEmpty()) {
+                throw new NotFoundException("No such director");
+            }
+            filmDirectorsRepository.addDirectorToFilm(filmdId, director.getId());
+        }
+    }
+
+    private void updateGenres(int filmId, Set<Genre> genres) {
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+        if (genres == null || genres.isEmpty()) {
+            return;
+        }
+        for (Genre genre : genres) {
+            if (genreRepository.findById(genre.getId()).isEmpty()) {
+                throw new NotFoundException("No such genre");
+            }
+            filmGenreRepository.addGenreToFilm(filmId, genre.getId());
+        }
+    }
+
+    @Override
+    public void delete(int filmId) {
+        if (filmRepository.findById(filmId).isEmpty()) {
+            throw new NotFoundException("Фильма с id: " + filmId + " не существует");
+        }
+
+        likesRepository.deleteAllLikesForFilm(filmId);
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+
+        boolean deleted = filmRepository.delete(filmId);
+        if (!deleted) {
+            throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
+        }
+    }
+
+    public Collection<FilmResponse> getCommonFilms(int userId, int friendId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+        userRepository.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + friendId + " не существует."));
+
+        return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+
+        return filmRepository.getRecommendations(userId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
 }

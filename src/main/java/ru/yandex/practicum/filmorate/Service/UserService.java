@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.Service;
 
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.Collection;
 
 public interface UserService {
@@ -11,14 +13,17 @@ public interface UserService {
 
     User save(User user);
 
-    User update(int id,User user);
+    User update(int id, User user);
 
-    User addFriend(int firstUserId,int secondUserId);
+    User addFriend(int firstUserId, int secondUserId);
 
-    User deleteFriend(int firstUserId,int secondUserId);
+    User deleteFriend(int firstUserId, int secondUserId);
 
     Collection<User> getUserFriends(int userId);
 
-    Collection<User> getCommonFriends(int firstUserId,int secondUserId);
+    Collection<User> getCommonFriends(int firstUserId, int secondUserId);
 
+    void delete(int userId);
+
+    Collection<FilmResponse> getRecommendations(int userId);
 }

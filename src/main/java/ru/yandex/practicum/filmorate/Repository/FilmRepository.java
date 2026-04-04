@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.Repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -16,4 +17,21 @@ public interface FilmRepository {
 
     Collection<Film> getPopularFilms(int count);
 
+    Collection<Film> getPopularFilms(int count, Integer genreId, Integer year);
+
+    Collection<Film> getDirectorFilmsByLikes(int directorId);
+
+    Collection<Film> getDirectorFilmsByYear(int directorId);
+
+    Collection<Film> searchByTitle(String query);
+
+    Collection<Film> searchByDirector(String query);
+
+    Collection<Film> searchByTitleAndDirector(String query);
+
+    boolean delete(int filmId);
+
+    Collection<Film> getCommonFilms(int userId, int friendId);
+
+    Collection<Film> getRecommendations(int userId);
 }
