@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
 import java.util.Collection;
 
+import java.util.List;
 
 @Slf4j
 @Repository
