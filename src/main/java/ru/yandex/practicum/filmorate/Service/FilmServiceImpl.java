@@ -117,11 +117,16 @@ public class FilmServiceImpl implements FilmService {
     public Film addLikeToFilm(int filmId, int userId) {
         Film film = filmRepository.findById(filmId)
                 .orElseThrow(() ->
-                        new NotFoundException("Фильма с id: " + filmId + "не существует"));
+                        new NotFoundException("Фильма с id: " + filmId + " не существует"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
-        likesRepository.addLikeToFilm(userId, filmId);
+
+        if (!likesRepository.isLikeExist(userId, filmId)) {
+            likesRepository.addLikeToFilm(userId, filmId);
+            eventService.addEvent(userId, EventType.LIKE, Operation.ADD, filmId);
+        }
+
         return film;
     }
 
