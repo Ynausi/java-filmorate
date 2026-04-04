@@ -12,8 +12,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
-
-import java.util.List;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,7 +30,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Loggable(value = "Getting events for user", level = LogLevel.DEBUG)
-    public List<EventResponse> getUserEvents(int userId) {
+    public Collection<EventResponse> getUserEvents(int userId) {
         if (userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("Пользователя с id: " + userId + " не существует");
         }

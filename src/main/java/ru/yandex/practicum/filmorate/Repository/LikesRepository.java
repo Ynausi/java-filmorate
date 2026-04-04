@@ -9,4 +9,6 @@ public interface LikesRepository {
     void deleteAllLikesForFilm(int filmId);
 
     void deleteAllLikesForUser(int userId);
+
+    boolean isLikeExist(int userId, int filmId);
 }
