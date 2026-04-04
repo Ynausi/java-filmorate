@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.MyAnnotations.Loggable;
 import ru.yandex.practicum.filmorate.Service.EventService;
 import ru.yandex.practicum.filmorate.dto.EventResponse;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,7 @@ public class EventController {
 
     @Loggable(value = "Получение ленты событий пользователя", level = LogLevel.INFO)
     @GetMapping("/{id}/feed")
-    public ResponseEntity<List<EventResponse>> getUserFeed(@PathVariable("id") int userId) {
+    public ResponseEntity<Collection<EventResponse>> getUserFeed(@PathVariable("id") int userId) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(eventService.getUserEvents(userId));

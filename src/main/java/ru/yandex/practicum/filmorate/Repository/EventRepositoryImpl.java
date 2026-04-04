@@ -8,13 +8,15 @@ import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
 
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
 @Repository
 public class EventRepositoryImpl extends BaseRepository<Event> implements EventRepository {
-    private static final String ADD_EVENT = "INSERT INTO Event(user_id, event_type, operation, entity_id, timestamp) VALUES(?, ?, ?, ?, ?)";
-    private static final String GET_USER_EVENTS = "SELECT * FROM Event WHERE user_id = ? ORDER BY timestamp ASC";
+    private static final String ADD_EVENT = "INSERT INTO Event(user_id, event_type, operation, entity_id, timestamp) " +
+            "VALUES(?, ?, ?, ?, ?)";
+    private static final String GET_USER_EVENTS = "SELECT * FROM Event WHERE user_id = ? ORDER BY timestamp ASC,id ASC";
 
     public EventRepositoryImpl(JdbcTemplate jdbc, RowMapper<Event> mapper) {
         super(jdbc, mapper);
@@ -27,7 +29,7 @@ public class EventRepositoryImpl extends BaseRepository<Event> implements EventR
     }
 
     @Override
-    public List<Event> getUserEvents(int userId) {
-        return findMany(GET_USER_EVENTS, userId).stream().toList();
+    public Collection<Event> getUserEvents(int userId) {
+        return findMany(GET_USER_EVENTS, userId);
     }
 }
