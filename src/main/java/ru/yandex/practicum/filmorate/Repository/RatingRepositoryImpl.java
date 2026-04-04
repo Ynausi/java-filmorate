@@ -9,7 +9,7 @@ import java.util.*;
 
 @Repository
 public class RatingRepositoryImpl extends BaseRepository<Rating> implements RatingRepository {
-    private static final String FIND_BY_Rating = "SELECT * FROM Rating WHERE id = ? ";
+    private static final String FIND_BY_Rating = "SELECT * FROM Rating WHERE id = ?";
     private static final String FIND_ALL_RATING_FOR_FILM = "SELECT r.id,r.name FROM Rating as r " +
             "JOIN Films as f ON r.id = ";
     private static final String FIND_ALL_RATINGS = "SELECT * FROM Rating ORDER BY id";

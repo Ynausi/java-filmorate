@@ -31,4 +31,6 @@ public interface FilmService {
     void delete(int filmId);
 
     Collection<FilmResponse> getCommonFilms(int userId, int friendId);
+
+    Collection<FilmResponse> getRecommendations(int userId);
 }

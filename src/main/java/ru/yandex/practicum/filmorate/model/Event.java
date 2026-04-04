@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Director {
+public class Event {
     private Integer id;
-    @NotBlank
-    private String name;
+    private Integer userId;
+    private EventType eventType;
+    private Operation operation;
+    private Integer entityId;
+    private Long timestamp;
 }

@@ -9,14 +9,11 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToData;
 import ru.yandex.practicum.filmorate.mapper.FilmDtoToResp;
 import ru.yandex.practicum.filmorate.mapper.FilmReqToFilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmToDto;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -40,6 +37,7 @@ public class FilmServiceImpl implements FilmService {
     private final RatingRepository ratingRepository;
     private final DirectorRepository directorRepository;
     private final FilmDirectorsRepository filmDirectorsRepository;
+    private final EventService eventService; // Добавляем EventService
 
     @Override
     public Collection<FilmResponse> findAll() {
@@ -70,7 +68,6 @@ public class FilmServiceImpl implements FilmService {
                 filmGenreRepository.addGenreToFilm(dto.getId(), genre.getId());
             }
             dto.setGenres(genreRepository.findAllGenresForFilm(dto.getId()));
-            System.out.println(dto.getGenres());
         } else {
             dto.setGenres(Collections.emptySet());
         }
@@ -82,7 +79,6 @@ public class FilmServiceImpl implements FilmService {
                 filmDirectorsRepository.addDirectorToFilm(dto.getId(), director.getId());
             }
             dto.setDirectors(directorRepository.findAllDirectorsForFilm(dto.getId()));
-            System.out.println(dto.getDirectors());
         } else {
             dto.setDirectors(Collections.emptySet());
         }
@@ -99,6 +95,7 @@ public class FilmServiceImpl implements FilmService {
         }
         FilmDto dto = filmReqToFilmDto.toDto(film);
         dto.setId(film.getId());
+        updateGenres(dto.getId(), dto.getGenres());
         updateDirectors(dto.getId(), dto.getDirectors());
         Film forUpdate = filmDtoToData.toData(dto);
         Film update = filmRepository.update(forUpdate);
@@ -139,6 +136,9 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + userId + " не существует."));
         likesRepository.deleteLikeFromFilm(filmId, userId);
+
+        eventService.addEvent(userId, EventType.LIKE, Operation.REMOVE, filmId);
+
         return film;
     }
 
@@ -189,6 +189,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Collection<FilmResponse> getDirectorFilmsByLikesOrYear(int directorId, String sortBy) {
+        if (directorRepository.findById(directorId).isEmpty()) {
+            throw new NotFoundException("No director with id = " + directorId);
+        }
         if (sortBy.equals("likes")) {
             return filmRepository.getDirectorFilmsByLikes(directorId).stream()
                     .map(this::buildFilmResponse)
@@ -202,7 +205,6 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-    //Преобразование из Film в FilmResponse чтобы убрать повторения
     private FilmResponse buildFilmResponse(Film film) {
         FilmDto dto = filmToDto.toData(film);
         dto.setMpa(
@@ -234,6 +236,19 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
+    private void updateGenres(int filmId, Set<Genre> genres) {
+        filmGenreRepository.deleteAllGenresForFilm(filmId);
+        if (genres == null || genres.isEmpty()) {
+            return;
+        }
+        for (Genre genre : genres) {
+            if (genreRepository.findById(genre.getId()).isEmpty()) {
+                throw new NotFoundException("No such genre");
+            }
+            filmGenreRepository.addGenreToFilm(filmId, genre.getId());
+        }
+    }
+
     @Override
     public void delete(int filmId) {
         if (filmRepository.findById(filmId).isEmpty()) {
@@ -241,7 +256,6 @@ public class FilmServiceImpl implements FilmService {
         }
 
         likesRepository.deleteAllLikesForFilm(filmId);
-
         filmGenreRepository.deleteAllGenresForFilm(filmId);
 
         boolean deleted = filmRepository.delete(filmId);
@@ -257,6 +271,17 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователя с id: " + friendId + " не существует."));
 
         return filmRepository.getCommonFilms(userId, friendId)
+                .stream()
+                .map(this::buildFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не существует."));
+
+        return filmRepository.getRecommendations(userId)
                 .stream()
                 .map(this::buildFilmResponse)
                 .collect(Collectors.toList());

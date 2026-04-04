@@ -5,9 +5,12 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.Repository.FriendshipRepository;
 import ru.yandex.practicum.filmorate.Repository.LikesRepository;
 import ru.yandex.practicum.filmorate.Repository.UserRepository;
+import ru.yandex.practicum.filmorate.dto.FilmResponse;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.FriendStatus;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -18,6 +21,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
     private final LikesRepository likesRepository;
+    private final FilmService filmService;
+    private final EventService eventService;
 
     public Collection<User> findAll() {
         return userRepository.findAll();
@@ -56,6 +61,7 @@ public class UserServiceImpl implements UserService {
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
         FriendStatus friendStatus = FriendStatus.CONFIRMED;
         friendshipRepository.addFriendShip(firstUserId, secondUserId, friendStatus);
+        eventService.addEvent(firstUserId, EventType.FRIEND, Operation.ADD, secondUserId);
         return firstUser;
     }
 
@@ -68,6 +74,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new NotFoundException("Пользователя с id: " + secondUserId + "не найден"));
         friendshipRepository.deleteFriendShip(firstUserId, secondUserId);
+        eventService.addEvent(firstUserId, EventType.FRIEND, Operation.REMOVE, secondUserId);
         return firstUser;
     }
 
@@ -97,12 +104,16 @@ public class UserServiceImpl implements UserService {
         }
 
         friendshipRepository.deleteAllFriendshipsForUser(userId);
-
         likesRepository.deleteAllLikesForUser(userId);
 
         boolean deleted = userRepository.delete(userId);
         if (!deleted) {
             throw new InternalServerException("Не удалось удалить пользователя с id: " + userId);
         }
+    }
+
+    @Override
+    public Collection<FilmResponse> getRecommendations(int userId) {
+        return filmService.getRecommendations(userId);
     }
 }
